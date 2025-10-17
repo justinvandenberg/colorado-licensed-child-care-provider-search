@@ -12,10 +12,10 @@ export interface UseFetchDataResult<T> {
   loading: boolean;
 }
 
-export function useFetchData<T = unknown>(
+const useFetchData = <T = unknown>(
   url: string,
   options?: FetchDataOptions
-): UseFetchDataResult<T> {
+): UseFetchDataResult<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -59,4 +59,6 @@ export function useFetchData<T = unknown>(
   }, [options?.body, options?.headers, options?.method, url]);
 
   return { data, loading, error };
-}
+};
+
+export { useFetchData };
