@@ -8,7 +8,7 @@ export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-export default function RootLayout() {
+const RootLayout = () => {
   return (
     <ThemeProvider>
       <Stack>
@@ -21,4 +21,6 @@ export default function RootLayout() {
       <StatusBar style="auto" />
     </ThemeProvider>
   );
-}
+};
+
+export default RootLayout;

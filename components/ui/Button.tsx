@@ -1,5 +1,5 @@
-import { IconData } from "@lineiconshq/free-icons";
-import { Lineicons, LineiconsProps } from "@lineiconshq/react-native-lineicons";
+import Octicons from "@expo/vector-icons/Octicons";
+import { LineiconsProps } from "@lineiconshq/react-native-lineicons";
 import { useMemo } from "react";
 import {
   GestureResponderEvent,
@@ -11,17 +11,20 @@ import {
   ViewStyle,
 } from "react-native";
 
-import { createStyleSheet } from "@/utilities/createStyleSheet";
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
 import Inline from "./Inline";
 import Text from "./Text";
+import { IconNames } from "./TextIcon";
 
 type ButtonProps = {
   disabled?: boolean;
   direction?: "forward" | "reverse";
-  icon?: IconData;
+  iconColor?: string;
+  iconName?: IconNames;
+  iconSize?: number;
   iconStyle?: LineiconsProps["style"];
   onPress: (event: GestureResponderEvent) => void;
   size?: "compact";
@@ -34,7 +37,9 @@ type ButtonProps = {
 const Button = ({
   direction = "forward",
   disabled = false,
-  icon,
+  iconColor,
+  iconName,
+  iconSize = 20,
   iconStyle,
   onPress,
   size,
@@ -62,18 +67,19 @@ const Button = ({
         ]}
         disabled={disabled}
       >
-        {icon && (
-          <Lineicons
+        {iconName && (
+          <Octicons
             color={
-              size === "compact" || variant === "inverted"
-                ? flattenedIconStyle.color
-                  ? flattenedIconStyle.color
-                  : theme.color.violet[400]
-                : undefined
+              iconColor
+                ? iconColor
+                : size === "compact"
+                ? theme.color.violet[400]
+                : variant === "inverted"
+                ? theme.color.violet[400]
+                : theme.color.white
             }
-            icon={icon}
-            size={24}
-            strokeWidth={2}
+            name={iconName}
+            size={iconSize}
             style={[
               { [direction === "reverse" ? "marginRight" : "marginLeft"]: -2 },
               iconStyle,
@@ -82,8 +88,8 @@ const Button = ({
         )}
         <Text
           color={
-            flattenedTitleStyle.color
-              ? flattenedTitleStyle.color
+            flattenedTitleStyle?.color
+              ? flattenedTitleStyle?.color
               : size === "compact"
               ? theme.color.violet[950]
               : variant === "inverted"
@@ -92,7 +98,7 @@ const Button = ({
           }
           fontSize={size === "compact" ? 14 : 16}
           fontWeight={size === "compact" ? 500 : 600}
-          style={titleStyle}
+          style={[styles.title, titleStyle]}
         >
           {title}
         </Text>
@@ -101,9 +107,10 @@ const Button = ({
   }, [
     direction,
     disabled,
-    flattenedIconStyle.color,
-    flattenedTitleStyle.color,
-    icon,
+    flattenedIconStyle?.color,
+    flattenedTitleStyle?.color,
+    iconName,
+    iconSize,
     iconStyle,
     onPress,
     size,
@@ -122,7 +129,7 @@ const Button = ({
   return Button;
 };
 
-const styles = createStyleSheet((theme) => ({
+const styles = createThemedStyleSheet((theme) => ({
   root: {
     alignItems: "center",
     backgroundColor: theme.color.violet[400],
@@ -145,6 +152,9 @@ const styles = createStyleSheet((theme) => ({
   },
   inverted: {
     backgroundColor: theme.color.transparent,
+  },
+  title: {
+    marginTop: theme.spacing[1],
   },
 }));
 

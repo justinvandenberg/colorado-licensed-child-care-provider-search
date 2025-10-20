@@ -91,8 +91,8 @@ const Text: FC<TextProps> = ({
         fontWeight = 700;
         break;
     }
-    const letterSpacing = fontSize * -0.01; // Equal to -1%
-    const lineHeight = fontSize; // Equal to 1
+    const letterSpacing = fontSize * -0.01; // -1%
+    const lineHeight = fontSize; // 100%
 
     return (
       <ReactNativeText

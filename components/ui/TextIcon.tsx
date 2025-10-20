@@ -1,6 +1,5 @@
-import { createStyleSheet } from "@/utilities/createStyleSheet";
-import { IconData } from "@lineiconshq/free-icons";
-import { Lineicons, LineiconsProps } from "@lineiconshq/react-native-lineicons";
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+import Octicons from "@expo/vector-icons/Octicons";
 import {
   StyleProp,
   StyleSheet,
@@ -15,10 +14,14 @@ import { useTheme } from "@/providers/ThemeProvider";
 import Inline from "./Inline";
 import Text from "./Text";
 
+export type IconNames = keyof typeof Octicons.glyphMap;
+
 type TextIconProps = {
   direction?: "forwards" | "reverse";
-  icon: IconData;
-  iconStyle?: LineiconsProps["style"];
+  iconColor?: string;
+  iconName: IconNames;
+  iconSize?: number;
+  iconStyle?: StyleProp<TextStyle>;
   style?: StyleProp<ViewStyle>;
   title: string;
   titleStyle?: StyleProp<TextStyle>;
@@ -26,7 +29,9 @@ type TextIconProps = {
 
 const TextIcon = ({
   direction = "forwards",
-  icon,
+  iconColor,
+  iconName,
+  iconSize = 20,
   iconStyle,
   style,
   title,
@@ -34,7 +39,6 @@ const TextIcon = ({
 }: TextIconProps) => {
   const theme = useTheme();
   const flattenedTitleStyle = StyleSheet.flatten(titleStyle);
-  const flattenedIconStyle = StyleSheet.flatten(iconStyle);
 
   return (
     <Inline>
@@ -47,15 +51,10 @@ const TextIcon = ({
           style,
         ]}
       >
-        <Lineicons
-          color={
-            flattenedIconStyle.color
-              ? flattenedIconStyle.color
-              : theme.color.violet[400]
-          }
-          icon={icon}
-          size={24}
-          strokeWidth={2}
+        <Octicons
+          color={iconColor ? iconColor : theme.color.violet[400]}
+          name={iconName}
+          size={iconSize}
           style={[
             { [direction === "reverse" ? "marginRight" : "marginLeft"]: -2 },
             iconStyle,
@@ -63,12 +62,12 @@ const TextIcon = ({
         />
         <Text
           color={
-            flattenedTitleStyle.color
-              ? flattenedTitleStyle.color
+            flattenedTitleStyle?.color
+              ? flattenedTitleStyle?.color
               : theme.color.violet[950]
           }
           fontWeight={500}
-          style={titleStyle}
+          style={[styles.title, titleStyle]}
         >
           {title}
         </Text>
@@ -77,10 +76,13 @@ const TextIcon = ({
   );
 };
 
-const styles = createStyleSheet((theme) => ({
+const styles = createThemedStyleSheet((theme) => ({
   root: {
     alignItems: "center",
     gap: theme.spacing[1],
+  },
+  title: {
+    marginTop: theme.spacing[1],
   },
 }));
 

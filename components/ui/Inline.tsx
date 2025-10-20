@@ -1,6 +1,6 @@
 import { View, ViewProps } from "react-native";
 
-import { createStyleSheet } from "@/utilities/createStyleSheet";
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 const Inline = ({ children, style, ...props }: ViewProps) => {
   return (
@@ -10,7 +10,7 @@ const Inline = ({ children, style, ...props }: ViewProps) => {
   );
 };
 
-const styles = createStyleSheet(() => ({
+const styles = createThemedStyleSheet(() => ({
   root: {
     alignItems: "center",
     flexDirection: "row",
