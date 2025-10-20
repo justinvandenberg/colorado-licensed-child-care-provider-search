@@ -3,9 +3,9 @@ import { View } from "react-native";
 
 import { theme } from "@/constants/theme";
 
-import { createStyleSheet } from "@/utilities/createStyleSheet";
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
-import Text from "./Text";
+import Text from "../ui/Text";
 
 interface ProviderCapacityProps {
   title: string;
@@ -25,7 +25,7 @@ const ProviderCapacity: FC<ProviderCapacityProps> = ({ title, count = 0 }) => {
   );
 };
 
-const styles = createStyleSheet((theme) => ({
+const styles = createThemedStyleSheet((theme) => ({
   root: {
     aspectRatio: "1 / 1",
     backgroundColor: theme.color.violet[400],

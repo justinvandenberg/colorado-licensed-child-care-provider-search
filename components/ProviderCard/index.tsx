@@ -1,44 +1,45 @@
-import {
-  ArrowRightOutlined,
-  MapMarker5Outlined,
-} from "@lineiconshq/free-icons";
 import { FC } from "react";
 import { View } from "react-native";
 
 import { Provider } from "@/types/Provider";
 
-import { createStyleSheet } from "@/utilities/createStyleSheet";
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
-import { useTheme } from "@/providers/ThemeProvider";
+import Button from "../ui/Button";
+import MapboxStaticImage from "../ui/MapboxStaticImage";
+import Text from "../ui/Text";
 
-import Button from "./Button";
 import ProviderCapacity from "./ProviderCapacity";
-import ProviderMap from "./ProviderMap";
 import ProviderQualityRating from "./ProviderQualityRating";
-import Text from "./Text";
 
 const ProviderCard: FC<Provider> = ({
+  provider_id,
   provider_name,
   quality_rating,
   licensed_infant_capacity,
   licensed_toddler_capacity,
   licensed_school_age_capacity,
   licensed_preschool_and_school_age_capacity,
+  street_address,
+  city,
+  state,
 }) => {
-  const theme = useTheme();
-
   return (
     <View style={styles.root}>
-      <ProviderMap />
-      <View style={styles.title}>
+      <MapboxStaticImage
+        id={provider_id}
+        streetAddress={street_address}
+        city={city}
+        state={state}
+      />
+      <View style={styles.titleWrapper}>
         <ProviderQualityRating qualityRating={quality_rating} />
-        <Text fontSize={20} fontWeight={600}>
+        <Text fontSize={20} fontWeight={600} style={styles.title}>
           {provider_name}
         </Text>
         <Button
-          icon={MapMarker5Outlined}
+          iconName="location"
           onPress={() => {}}
-          style={styles.mapButton}
           size="compact"
           title="Open in maps"
         />
@@ -62,7 +63,7 @@ const ProviderCard: FC<Provider> = ({
       </View>
       <Button
         direction="reverse"
-        icon={ArrowRightOutlined}
+        iconName="arrow-right"
         onPress={() => {}}
         style={styles.button}
         title="See more"
@@ -73,7 +74,7 @@ const ProviderCard: FC<Provider> = ({
   );
 };
 
-const styles = createStyleSheet((theme) => ({
+const styles = createThemedStyleSheet((theme) => ({
   root: {
     backgroundColor: theme.color.white,
     borderColor: theme.color.violet[200],
@@ -84,12 +85,13 @@ const styles = createStyleSheet((theme) => ({
     padding: theme.spacing[2],
     paddingBottom: 0,
   },
-  title: {
+  titleWrapper: {
     gap: theme.spacing[2],
+    marginTop: theme.spacing[1],
     paddingLeft: theme.spacing[2],
     paddingRight: theme.spacing[2],
   },
-  mapButton: {
+  title: {
     marginTop: theme.spacing[1],
   },
   capacities: {

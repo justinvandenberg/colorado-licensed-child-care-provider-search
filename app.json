@@ -1,15 +1,19 @@
 {
   "expo": {
-    "name": "colorado-licensed-child-care-providers",
-    "slug": "colorado-licensed-child-care-providers",
+    "name": "colorado-licensed-child-care-providers-search",
+    "slug": "colorado-licensed-child-care-providers-search",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "colorado-licensed-child-care-providers",
+    "scheme": "coloradolicensedchildcareproviderssearch",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.justinvandenberg.coloradolicensedchildcareproviderssearch",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,8 +27,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png",
-      "bundler": "metro"
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
@@ -39,12 +42,23 @@
             "backgroundColor": "#000000"
           }
         }
-      ],
-      "expo-font"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c2d738b9-3c9a-402c-8e19-d3966c4f3426"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c2d738b9-3c9a-402c-8e19-d3966c4f3426"
     }
   }
 }
