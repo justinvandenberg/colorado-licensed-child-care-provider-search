@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "colorado-licensed-child-care-providers-search",
-    "slug": "colorado-licensed-child-care-providers-search",
+    "name": "colorado-licensed-child-care-provider-search",
+    "slug": "colorado-licensed-child-care-provider-search",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "coloradolicensedchildcareproviderssearch",
+    "scheme": "coloradolicensedchildcareprovidersearch",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.justinvandenberg.coloradolicensedchildcareproviderssearch",
+      "bundleIdentifier": "com.justinvandenberg.coloradolicensedchildcareprovidersearch",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -51,7 +51,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "c2d738b9-3c9a-402c-8e19-d3966c4f3426"
+        "projectId": "cad2515b-7f52-4390-94b4-cf4bc9efda48"
       }
     },
     "runtimeVersion": {
@@ -59,6 +59,7 @@
     },
     "updates": {
       "url": "https://u.expo.dev/c2d738b9-3c9a-402c-8e19-d3966c4f3426"
-    }
+    },
+    "owner": "justinvandenberg"
   }
 }

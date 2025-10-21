@@ -1,15 +1,20 @@
 import { ScrollView, View } from "react-native";
 
-import ProviderCardList from "@/components/ProviderCardList";
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
+import { ProvidersProvider } from "@/providers/ProvidersProvider";
+
+import ProviderCardList from "@/components/ProviderCardList";
 
 export default function HomeScreen() {
   return (
-    <ScrollView style={styles.root}>
-      <View>
-        <ProviderCardList />
-      </View>
-    </ScrollView>
+    <ProvidersProvider>
+      <ScrollView style={styles.root}>
+        <View>
+          <ProviderCardList />
+        </View>
+      </ScrollView>
+    </ProvidersProvider>
   );
 }
 
