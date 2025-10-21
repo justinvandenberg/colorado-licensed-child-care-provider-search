@@ -6,7 +6,7 @@ import { Provider } from "@/types/Provider";
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import Button from "../ui/Button";
-import MapboxStaticImage from "../ui/MapboxStaticImage";
+import StaticMap from "../ui/StaticMap";
 import Text from "../ui/Text";
 
 import ProviderCapacity from "./ProviderCapacity";
@@ -23,15 +23,11 @@ const ProviderCard: FC<Provider> = ({
   street_address,
   city,
   state,
+  static_map_uri,
 }) => {
   return (
     <View style={styles.root}>
-      <MapboxStaticImage
-        id={provider_id}
-        streetAddress={street_address}
-        city={city}
-        state={state}
-      />
+      <StaticMap imageUri={static_map_uri} />
       <View style={styles.titleWrapper}>
         <ProviderQualityRating qualityRating={quality_rating} />
         <Text fontSize={20} fontWeight={600} style={styles.title}>

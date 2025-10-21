@@ -4,28 +4,11 @@ import { View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
-import { useMapbox } from "@/hooks/useMapbox";
-
-interface MapboxStaticImageProps {
-  id: string;
-  streetAddress: string;
-  city: string;
-  state: string;
+interface StaticMapProps {
+  imageUri: string;
 }
 
-const MapboxStaticImage: FC<MapboxStaticImageProps> = ({
-  id,
-  streetAddress,
-  city,
-  state,
-}) => {
-  const { imageUri } = useMapbox({
-    id,
-    streetAddress,
-    city,
-    state,
-  });
-
+const StaticMap: FC<StaticMapProps> = ({ imageUri }) => {
   return (
     <View style={[styles.root]}>
       {imageUri && (
@@ -44,4 +27,4 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
-export default MapboxStaticImage;
+export default StaticMap;

@@ -1,10 +1,13 @@
+import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs } from "expo-router";
 import React from "react";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+
+import { useTheme } from "@/providers/ThemeProvider";
 
 export default function TabLayout() {
+  const theme = useTheme();
   return (
     <Tabs
       screenOptions={{
@@ -17,16 +20,20 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <Octicons color={theme.color.violet[400]} name="search" size={24} />
           ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Explore",
+          title: "Visit",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <Octicons
+              color={theme.color.violet[400]}
+              name="milestone"
+              size={24}
+            />
           ),
         }}
       />
@@ -35,7 +42,11 @@ export default function TabLayout() {
         options={{
           title: "Dev",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <Octicons
+              color={theme.color.violet[400]}
+              name="command-palette"
+              size={24}
+            />
           ),
         }}
       />
