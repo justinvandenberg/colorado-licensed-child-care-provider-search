@@ -11,10 +11,11 @@ import { FC } from "react";
 import {
   ColorValue,
   Text as ReactNativeText,
-  TextProps as ReactNativeTextProps,
+  TextProps as RnTextProps,
 } from "react-native";
 
 type TextProps = {
+  center?: boolean;
   color?: ColorValue;
   fontSize?: number;
   fontWeight?:
@@ -30,9 +31,10 @@ type TextProps = {
     | 700
     | "700"
     | "700i";
-} & ReactNativeTextProps;
+} & RnTextProps;
 
 const Text: FC<TextProps> = ({
+  center = false,
   color,
   fontSize = 16,
   fontWeight = 400,
@@ -99,7 +101,14 @@ const Text: FC<TextProps> = ({
         {...props}
         style={[
           style,
-          { color, lineHeight, fontFamily, fontSize, letterSpacing },
+          {
+            color,
+            lineHeight,
+            fontFamily,
+            fontSize,
+            letterSpacing,
+            textAlign: center ? "center" : "left",
+          },
         ]}
       />
     );

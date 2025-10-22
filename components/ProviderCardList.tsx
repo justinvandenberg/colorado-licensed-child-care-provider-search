@@ -1,13 +1,17 @@
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { useProviders } from "@/providers/ProvidersProvider";
+import { useTheme } from "@/providers/ThemeProvider";
+
+import Pagination from "./ui/Pagination";
+import Text from "./ui/Text";
 
 import ProviderCard from "./ProviderCard";
-import Pagination from "./ui/Pagination";
 
 const ProviderCardList = () => {
+  const theme = useTheme();
   const { providers, loading, error, onNext, onPrev } = useProviders();
 
   if (loading) {
@@ -18,17 +22,22 @@ const ProviderCardList = () => {
     return <Text>Error: {error.message}</Text>;
   }
 
+  if (providers.length === 0) {
+    return;
+  }
+
   return (
     <View style={[styles.root]}>
-      <Text>Found {providers?.length ?? 0} child care providers</Text>
-      {providers.length > 0 &&
-        providers?.map((provider) => {
-          return (
-            <View key={provider.provider_id}>
-              <ProviderCard {...provider} />
-            </View>
-          );
-        })}
+      <Text fontWeight={600} center={true}>
+        Found {providers.length ?? 0} child care providers
+      </Text>
+      {providers.map((provider) => {
+        return (
+          <View key={provider.provider_id}>
+            <ProviderCard {...provider} />
+          </View>
+        );
+      })}
       <Pagination onNext={onNext} onPrev={onPrev} />
     </View>
   );
@@ -37,6 +46,7 @@ const ProviderCardList = () => {
 const styles = createThemedStyleSheet((theme) => ({
   root: {
     gap: theme.spacing[2],
+    paddingTop: 2,
   },
 }));
 

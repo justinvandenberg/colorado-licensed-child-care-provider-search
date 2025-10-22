@@ -5,12 +5,14 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import { ProvidersProvider } from "@/providers/ProvidersProvider";
 
 import ProviderCardList from "@/components/ProviderCardList";
+import ProviderSearch from "@/components/ProviderSearch";
 
 export default function HomeScreen() {
   return (
     <ProvidersProvider>
       <ScrollView style={styles.root}>
-        <View>
+        <View style={styles.wrapper}>
+          <ProviderSearch />
           <ProviderCardList />
         </View>
       </ScrollView>
@@ -24,5 +26,9 @@ const styles = createThemedStyleSheet((theme) => ({
     flex: 1,
     paddingLeft: theme.spacing[2],
     paddingRight: theme.spacing[2],
+  },
+  wrapper: {
+    gap: theme.spacing[2],
+    paddingBottom: theme.spacing[2],
   },
 }));

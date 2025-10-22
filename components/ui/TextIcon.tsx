@@ -21,7 +21,6 @@ type TextIconProps = {
   iconColor?: string;
   iconName: IconNames;
   iconSize?: number;
-  iconStyle?: StyleProp<TextStyle>;
   style?: StyleProp<ViewStyle>;
   title: string;
   titleStyle?: StyleProp<TextStyle>;
@@ -32,7 +31,6 @@ const TextIcon = ({
   iconColor,
   iconName,
   iconSize = 20,
-  iconStyle,
   style,
   title,
   titleStyle,
@@ -57,7 +55,6 @@ const TextIcon = ({
           size={iconSize}
           style={[
             { [direction === "reverse" ? "marginRight" : "marginLeft"]: -2 },
-            iconStyle,
           ]}
         />
         <Text

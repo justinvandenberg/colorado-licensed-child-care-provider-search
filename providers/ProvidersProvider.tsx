@@ -17,10 +17,12 @@ import {
 import { CdecProvider, Provider } from "@/types/Provider";
 
 // CDEC API
-const APP_TOKEN =
+export const API_URL =
+  "https://data.colorado.gov/api/v3/views/a9rr-k8mu/query.json";
+export const APP_TOKEN =
   process.env.CDEC_APP_TOKEN ?? process.env.EXPO_PUBLIC_CDEC_APP_TOKEN;
-const PAGE_SIZE = 5;
-const MAX_PAGE_NUMBER = 10;
+export const PAGE_SIZE = 5;
+export const MAX_PAGE_NUMBER = 10;
 
 type ProviderContextType = {
   providers: Provider[];
@@ -28,6 +30,9 @@ type ProviderContextType = {
   error: Error | null;
   onPrev: () => void;
   onNext: () => void;
+  updateZip: (zip: string) => void;
+  resetProviders: () => void;
+  zip: string;
 };
 
 const ProvidersContext = createContext<ProviderContextType>({
@@ -36,6 +41,9 @@ const ProvidersContext = createContext<ProviderContextType>({
   error: null,
   onPrev: () => {},
   onNext: () => {},
+  updateZip: () => {},
+  resetProviders: () => {},
+  zip: "",
 });
 
 const ProvidersProvider = ({ children }: PropsWithChildren) => {
@@ -45,6 +53,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [pageNumber, setPageNumber] = useState<number>(1);
   // const [pageSize, setPageSize] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number | undefined>(5);
+  const [zip, setZip] = useState<string>("");
 
   const onNext = useCallback(() => {
     if (pageNumber === totalPages) {
@@ -59,6 +68,10 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
     }
     setPageNumber((pageNumber) => pageNumber - 1);
   }, [pageNumber]);
+
+  const updateZip = useCallback((zip: string) => {
+    setZip(zip);
+  }, []);
 
   // Count the total pages on mount
   useEffect(() => {
@@ -84,40 +97,64 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
         setError(null);
 
         const cdecProviders: CdecProvider[] = await fetchProviders(
+          zip,
           Math.min(pageNumber, MAX_PAGE_NUMBER),
           PAGE_SIZE
         );
 
         if (!cdecProviders) {
-          return; // Abort
+          return;
         }
 
         const providerIds: string[] = cdecProviders.map(
           (provider) => provider.provider_id
         );
-        const matchingProviders = await Promise.all(
-          providerIds.map(async (provider_id) => {
-            const providerSnap = await getDoc(
-              doc(firebaseDb, "providers", provider_id)
-            );
-            return providerSnap.data() as Provider;
-          })
-        );
 
+        const matchingProviders = (
+          await Promise.all(
+            providerIds.map(async (provider_id) => {
+              try {
+                const providerSnap = await getDoc(
+                  doc(firebaseDb, "providers", provider_id)
+                );
+                return providerSnap.exists()
+                  ? (providerSnap.data() as Provider)
+                  : null;
+              } catch (error) {
+                console.warn(`Failed to fetch provider ${provider_id}:`, error);
+                return null;
+              }
+            })
+          )
+        ).filter((provider): provider is Provider => provider !== null);
         setProviders(matchingProviders);
       } catch (error) {
-        console.warn("Could not retrieve entries from Firebase");
+        console.warn("Could not retrieve entries from Firebase:", error);
         setError(error as Error);
       } finally {
         setLoading(false);
       }
     };
     fetchMatchingProviders();
-  }, [pageNumber]);
+  }, [pageNumber, zip]);
+
+  const resetProviders = useCallback(() => {
+    setProviders([]);
+    setZip("");
+  }, []);
 
   return (
     <ProvidersContext.Provider
-      value={{ providers, loading, error, onNext, onPrev }}
+      value={{
+        providers,
+        loading,
+        error,
+        onNext,
+        onPrev,
+        updateZip,
+        resetProviders,
+        zip,
+      }}
     >
       {children}
     </ProvidersContext.Provider>
@@ -134,11 +171,8 @@ const useProviders = () => {
   return context;
 };
 
-export { ProvidersProvider, useProviders };
-
-const API_URL = "https://data.colorado.gov/api/v3/views/a9rr-k8mu/query.json";
-
-export const fetchProviders = async (
+const fetchProviders = async (
+  zip: string = "80516",
   pageNumber: number = 1,
   pageSize: number = PAGE_SIZE
 ) => {
@@ -149,7 +183,7 @@ export const fetchProviders = async (
       "X-App-Token": `${APP_TOKEN}`,
     },
     body: JSON.stringify({
-      query: "SELECT *", // TODO: Add zip query from search
+      query: `SELECT * WHERE zip = '${zip}'`,
       page: { pageNumber, pageSize },
       includeSynthetic: false,
     }),
@@ -158,3 +192,5 @@ export const fetchProviders = async (
 
   return json;
 };
+
+export { ProvidersProvider, useProviders };

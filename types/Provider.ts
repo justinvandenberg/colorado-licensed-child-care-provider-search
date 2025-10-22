@@ -1,3 +1,7 @@
+/**
+ * API fields:
+ * https://dev.socrata.com/foundry/data.colorado.gov/a9rr-k8mu
+ */
 export interface CdecProvider {
   provider_id: string;
   provider_name: string;
