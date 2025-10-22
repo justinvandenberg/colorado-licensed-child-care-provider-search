@@ -8,7 +8,7 @@ import { firebaseDb } from "@/firebaseConfig";
 
 import { Provider } from "@/types/Provider";
 
-import { fetchProviders } from "@/providers/ProvidersProvider";
+import { API_URL, APP_TOKEN, PAGE_SIZE } from "@/providers/ProvidersProvider";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
@@ -37,7 +37,7 @@ export default function DevScreen() {
         throw new Error("Firestore instance is invalid");
       }
 
-      const providers = await fetchProviders(1, 50); // TODO: Change this to a higher value (10000?)
+      const providers = await fetchProviders(500); // TODO: Change this to a higher value (10000?)
 
       // Loop through the providers and add the additional data
       for (const provider of providers) {
@@ -138,6 +138,24 @@ const styles = createThemedStyleSheet((theme) => ({
     paddingTop: theme.spacing[20],
   },
 }));
+
+const fetchProviders = async (pageSize: number = PAGE_SIZE) => {
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-App-Token": `${APP_TOKEN}`,
+    },
+    body: JSON.stringify({
+      query: "SELECT *",
+      page: { pageNumber: 1, pageSize },
+      includeSynthetic: false,
+    }),
+  });
+  const json = await response.json();
+
+  return json;
+};
 
 const fetchPlacesData = async (placeId: Provider["place_id"]) => {
   const fields = [

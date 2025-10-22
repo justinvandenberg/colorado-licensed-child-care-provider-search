@@ -1,5 +1,4 @@
 import Octicons from "@expo/vector-icons/Octicons";
-import { LineiconsProps } from "@lineiconshq/react-native-lineicons";
 import { useMemo } from "react";
 import {
   GestureResponderEvent,
@@ -24,8 +23,8 @@ type ButtonProps = {
   direction?: "forward" | "reverse";
   iconColor?: string;
   iconName?: IconNames;
+  iconOnly?: boolean;
   iconSize?: number;
-  iconStyle?: LineiconsProps["style"];
   onPress: (event: GestureResponderEvent) => void;
   size?: "compact";
   style?: StyleProp<ViewStyle>;
@@ -39,8 +38,8 @@ const Button = ({
   disabled = false,
   iconColor,
   iconName,
+  iconOnly = false,
   iconSize = 20,
-  iconStyle,
   onPress,
   size,
   style,
@@ -50,7 +49,6 @@ const Button = ({
 }: ButtonProps) => {
   const theme = useTheme();
   const flattenedTitleStyle = StyleSheet.flatten(titleStyle);
-  const flattenedIconStyle = StyleSheet.flatten(iconStyle);
 
   const Button = useMemo(() => {
     return (
@@ -66,6 +64,7 @@ const Button = ({
           style,
         ]}
         disabled={disabled}
+        aria-label={iconOnly ? title : undefined}
       >
         {iconName && (
           <Octicons
@@ -82,36 +81,37 @@ const Button = ({
             size={iconSize}
             style={[
               { [direction === "reverse" ? "marginRight" : "marginLeft"]: -2 },
-              iconStyle,
             ]}
           />
         )}
-        <Text
-          color={
-            flattenedTitleStyle?.color
-              ? flattenedTitleStyle?.color
-              : size === "compact"
-              ? theme.color.violet[950]
-              : variant === "inverted"
-              ? theme.color.violet[400]
-              : theme.color.white
-          }
-          fontSize={size === "compact" ? 14 : 16}
-          fontWeight={size === "compact" ? 500 : 600}
-          style={[styles.title, titleStyle]}
-        >
-          {title}
-        </Text>
+        {!iconOnly && (
+          <Text
+            color={
+              flattenedTitleStyle?.color
+                ? flattenedTitleStyle?.color
+                : size === "compact"
+                ? theme.color.violet[950]
+                : variant === "inverted"
+                ? theme.color.violet[400]
+                : theme.color.white
+            }
+            fontSize={size === "compact" ? 14 : 16}
+            fontWeight={size === "compact" ? 500 : 600}
+            style={[styles.title, titleStyle]}
+          >
+            {title}
+          </Text>
+        )}
       </Pressable>
     );
   }, [
     direction,
     disabled,
-    flattenedIconStyle?.color,
     flattenedTitleStyle?.color,
+    iconColor,
     iconName,
+    iconOnly,
     iconSize,
-    iconStyle,
     onPress,
     size,
     style,
@@ -137,10 +137,7 @@ const styles = createThemedStyleSheet((theme) => ({
     flexDirection: "row",
     gap: theme.spacing[1],
     justifyContent: "center",
-    paddingLeft: theme.spacing[4],
-    paddingRight: theme.spacing[4],
-    paddingTop: theme.spacing[6],
-    paddingBottom: theme.spacing[6],
+    padding: theme.spacing[6],
   },
   compact: {
     backgroundColor: theme.color.violet[100],
