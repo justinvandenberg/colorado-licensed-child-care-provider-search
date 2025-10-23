@@ -15,6 +15,7 @@ import {
 } from "react";
 
 import { CdecProvider, Provider } from "@/types/Provider";
+import { Keyboard } from "react-native";
 
 // CDEC API
 export const API_URL =
@@ -128,6 +129,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
           )
         ).filter((provider): provider is Provider => provider !== null);
         setProviders(matchingProviders);
+        Keyboard.dismiss();
       } catch (error) {
         console.warn("Could not retrieve entries from Firebase:", error);
         setError(error as Error);
