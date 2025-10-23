@@ -6,7 +6,7 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import { useProviders } from "@/providers/ProvidersProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 
-import Button from "./ui/Button";
+import LocationButton from "./ui/LocationButton";
 import Text from "./ui/Text";
 import TextInput from "./ui/TextInput";
 
@@ -74,12 +74,8 @@ const ProviderSearch = () => {
             value={zip}
           />
         </View>
-        <Button
-          iconOnly={true}
-          iconName="pin"
-          onPress={() => {}}
-          title="Locate me"
-          style={{ backgroundColor: theme.color.violet[950] }}
+        <LocationButton
+          onLocationPermissionGranted={(zip) => setZip(zip || "")}
         />
       </View>
     </View>
