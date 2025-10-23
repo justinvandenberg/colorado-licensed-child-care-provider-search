@@ -1,7 +1,7 @@
+import * as Location from "expo-location";
 import { FC, useCallback } from "react";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
-import * as Location from "expo-location";
 
 import Button from "./Button";
 
@@ -39,10 +39,10 @@ const LocationButton: FC<LocationButtonProps> = ({
   return (
     <Button
       iconOnly={true}
-      iconName="pin"
+      iconName="location"
       onPress={getCurrentLocation}
-      title="Provide current location to find locations nearby"
       style={styles.root}
+      title="Provide current location to find locations nearby"
     />
   );
 };

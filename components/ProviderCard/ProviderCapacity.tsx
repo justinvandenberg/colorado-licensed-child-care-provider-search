@@ -30,6 +30,7 @@ const styles = createThemedStyleSheet((theme) => ({
     aspectRatio: "1 / 1",
     backgroundColor: theme.color.violet[400],
     borderRadius: theme.spacing[6],
+    flex: 1,
     justifyContent: "flex-end",
     padding: theme.spacing[3],
     paddingBottom: theme.spacing[2],

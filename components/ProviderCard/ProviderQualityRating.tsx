@@ -15,7 +15,7 @@ const ProviderQualityRating: FC<ProviderQualityRatingProps> = ({
 }) => {
   const theme = useTheme();
   const props = useMemo(() => {
-    let iconName: IconNames = "skip";
+    let iconName: IconNames = "hourglass";
     let iconColor = theme.color.red[400];
     let title = "Not yet rated";
     let titleColor = theme.color.red[700];

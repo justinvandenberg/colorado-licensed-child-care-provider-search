@@ -1,10 +1,5 @@
 import { firebaseDb } from "@/firebaseConfig";
-import {
-  collection,
-  doc,
-  getCountFromServer,
-  getDoc,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import {
   createContext,
   PropsWithChildren,
@@ -23,27 +18,30 @@ export const API_URL =
 export const APP_TOKEN =
   process.env.CDEC_APP_TOKEN ?? process.env.EXPO_PUBLIC_CDEC_APP_TOKEN;
 export const PAGE_SIZE = 5;
-export const MAX_PAGE_NUMBER = 10;
 
 type ProviderContextType = {
-  providers: Provider[];
-  loading: boolean;
   error: Error | null;
-  onPrev: () => void;
-  onNext: () => void;
-  updateZip: (zip: string) => void;
+  loading: boolean;
+  onPaginatePrev: () => void;
+  onPaginateNext: () => void;
+  providers: Provider[];
   resetProviders: () => void;
+  totalPages: number;
+  totalProviders: number;
+  updateZip: (zip: string) => void;
   zip: string;
 };
 
 const ProvidersContext = createContext<ProviderContextType>({
-  providers: [],
-  loading: false,
   error: null,
-  onPrev: () => {},
-  onNext: () => {},
-  updateZip: () => {},
+  loading: false,
+  onPaginatePrev: () => {},
+  onPaginateNext: () => {},
+  providers: [],
   resetProviders: () => {},
+  totalPages: 0,
+  totalProviders: 0,
+  updateZip: () => {},
   zip: "",
 });
 
@@ -53,17 +51,18 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [error, setError] = useState<Error | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(1);
   // const [pageSize, setPageSize] = useState<number>(5);
-  const [totalPages, setTotalPages] = useState<number | undefined>(5);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalProviders, setTotalProviders] = useState<number>(0);
   const [zip, setZip] = useState<string>("");
 
-  const onNext = useCallback(() => {
+  const onPaginateNext = useCallback(() => {
     if (pageNumber === totalPages) {
       return;
     }
     setPageNumber((pageNumber) => pageNumber + 1);
   }, [pageNumber, totalPages]);
 
-  const onPrev = useCallback(() => {
+  const onPaginatePrev = useCallback(() => {
     if (pageNumber === 1) {
       return;
     }
@@ -72,26 +71,33 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
 
   const updateZip = useCallback((zip: string) => {
     setZip(zip);
+    setPageNumber(1); // Start over
   }, []);
 
-  // Count the total pages on mount
+  // Update the total pages every time we fetch new providers
   useEffect(() => {
-    if (totalPages) {
+    /**
+     * Can't calculate without a zip code and
+     * don't need to recalculate past the first page
+     */
+    if (!zip || pageNumber > 1) {
       return;
     }
 
-    const countTotalPages = async () => {
-      const providersSnap = await getCountFromServer(
-        collection(firebaseDb, "providers")
-      );
-      const totalPages = providersSnap.data().count / PAGE_SIZE;
-      setTotalPages(totalPages);
+    const fetchAllProviders = async () => {
+      const totalProviders = await fetchProviders(zip, 1, 50); // TODO: Make the cap much higher (10000?)
+      setTotalProviders(totalProviders.length);
+      setTotalPages(Math.ceil(totalProviders.length / PAGE_SIZE));
     };
-    countTotalPages();
-  }, [totalPages]);
+    fetchAllProviders();
+  }, [providers, pageNumber, zip]);
 
   // Fetch the providers with matching provider_ids from the DB
   useEffect(() => {
+    if (!zip) {
+      return;
+    }
+
     const fetchMatchingProviders = async () => {
       try {
         setLoading(true);
@@ -99,7 +105,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
 
         const cdecProviders: CdecProvider[] = await fetchProviders(
           zip,
-          Math.min(pageNumber, MAX_PAGE_NUMBER),
+          pageNumber,
           PAGE_SIZE
         );
 
@@ -148,13 +154,15 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   return (
     <ProvidersContext.Provider
       value={{
-        providers,
-        loading,
         error,
-        onNext,
-        onPrev,
-        updateZip,
+        loading,
+        onPaginateNext,
+        onPaginatePrev,
+        providers,
         resetProviders,
+        totalPages,
+        totalProviders,
+        updateZip,
         zip,
       }}
     >

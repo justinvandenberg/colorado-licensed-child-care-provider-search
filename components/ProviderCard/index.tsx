@@ -9,7 +9,8 @@ import Button from "../ui/Button";
 import StaticMap from "../ui/StaticMap";
 import Text from "../ui/Text";
 
-import ProviderCapacity from "./ProviderCapacity";
+import ProviderCapacities from "./ProviderCapacities";
+import ProviderContact from "./ProviderContact";
 import ProviderQualityRating from "./ProviderQualityRating";
 
 const ProviderCard: FC<Provider> = ({
@@ -19,11 +20,15 @@ const ProviderCard: FC<Provider> = ({
   licensed_infant_capacity,
   licensed_toddler_capacity,
   licensed_school_age_capacity,
+  licensed_preschool_capacity,
   licensed_preschool_and_school_age_capacity,
   street_address,
   city,
   state,
   static_map_uri,
+  formatted_phone_number,
+  formatted_address,
+  website,
 }) => {
   return (
     <View style={styles.root}>
@@ -33,30 +38,18 @@ const ProviderCard: FC<Provider> = ({
         <Text fontSize={20} fontWeight={600} style={styles.title}>
           {provider_name}
         </Text>
-        <Button
-          iconName="location"
-          onPress={() => {}}
-          size="compact"
-          title="Open in maps"
+        <ProviderContact
+          address={formatted_address}
+          phoneNumber={formatted_phone_number}
+          website={website}
         />
       </View>
-      <View style={styles.capacities}>
-        <View style={styles.capacity}>
-          <ProviderCapacity title="Infant" count={licensed_infant_capacity} />
-        </View>
-        <View style={styles.capacity}>
-          <ProviderCapacity title="Toddler" count={licensed_toddler_capacity} />
-        </View>
-        <View style={styles.capacity}>
-          <ProviderCapacity title="PreK" count={licensed_school_age_capacity} />
-        </View>
-        <View style={styles.capacity}>
-          <ProviderCapacity
-            title="K-12"
-            count={licensed_preschool_and_school_age_capacity}
-          />
-        </View>
-      </View>
+      <ProviderCapacities
+        infantCapacity={licensed_infant_capacity}
+        toddlerCapacity={licensed_toddler_capacity}
+        preKCapacity={licensed_preschool_capacity}
+        schoolAgeCapacity={licensed_school_age_capacity}
+      />
       <Button
         direction="reverse"
         iconName="arrow-right"
@@ -89,16 +82,6 @@ const styles = createThemedStyleSheet((theme) => ({
   },
   title: {
     marginTop: theme.spacing[1],
-  },
-  capacities: {
-    backgroundColor: theme.color.violet[100],
-    borderRadius: theme.spacing[8],
-    flexDirection: "row",
-    gap: theme.spacing[1],
-    padding: theme.spacing[2],
-  },
-  capacity: {
-    flex: 1,
   },
   button: {
     marginTop: -8,

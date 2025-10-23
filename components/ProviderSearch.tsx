@@ -75,7 +75,13 @@ const ProviderSearch = () => {
           />
         </View>
         <LocationButton
-          onLocationPermissionGranted={(zip) => setZip(zip || "")}
+          onLocationPermissionGranted={(zip) => {
+            if (!zip) {
+              return;
+            }
+            updateZip(zip);
+            setZip(zip);
+          }}
         />
       </View>
     </View>

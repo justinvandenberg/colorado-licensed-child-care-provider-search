@@ -29,6 +29,7 @@ export default function DevScreen() {
 
   // Get the child care providers from CDEC and attach additional data from Google APIs
   const refetchProviders = useCallback(async () => {
+    let totalProviders = 0;
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +38,7 @@ export default function DevScreen() {
         throw new Error("Firestore instance is invalid");
       }
 
-      const providers = await fetchProviders(500); // TODO: Change this to a higher value (10000?)
+      const providers = await fetchProviders(5); // TODO: Change this to a higher value (10000?)
 
       // Loop through the providers and add the additional data
       for (const provider of providers) {
@@ -46,6 +47,7 @@ export default function DevScreen() {
         const geoData = await fetchGeoData(fullAddress);
         const location = geoData?.geometry?.location;
 
+        // Should prevent saving to Firebase
         if (!location || !geoData.place_id) {
           console.warn(
             `Geocode attempt failed for: ${provider.provider_id} (${fullAddress})`
@@ -54,20 +56,7 @@ export default function DevScreen() {
         }
 
         /**
-         * Step 2: Get the places data (website, phone number, etc.) from the place_id
-         * retrieved in step 1
-         */
-        const placesData = await fetchPlacesData(geoData.place_id);
-
-        if (!placesData) {
-          console.warn(
-            `Places data could not be found for: ${provider.provider_id}(${geoData.place_id})`
-          );
-          continue;
-        }
-
-        /**
-         * Step 3: Download the static map image and save it to the local file system
+         * Step 2: Download the static map image and save it to the local file system
          * The images are saved in the {Paths.cache}/DIR_NAME
          */
         const staticMap = await downloadStaticMap(
@@ -76,24 +65,38 @@ export default function DevScreen() {
           location
         );
 
+        // Should prevent saving to Firebase
         if (!staticMap) {
           console.warn(
-            `A static map could not be found for: ${provider.provider_id}`
+            `A static map could not be found for: ${provider.provider_name} (${provider.provider_id})`
           );
           continue;
+        }
+
+        /**
+         * Step 3: Get the places data (website, phone number, etc.) from the provider_na,e
+         * Uses the lat and lng to help narrow results
+         */
+        const placesData = await fetchPlacesDataByTextQuery(
+          provider.provider_name,
+          location
+        );
+
+        // Should NOT prevent saving to Firebase
+        if (!placesData) {
+          console.warn(
+            `Places data could not be found for: ${provider.provider_name} (${provider.provider_id})`
+          );
         }
 
         // Step 4: Combine the data from the previous requests and update Firebase
         const updatedProvider: Provider = {
           ...provider,
           location,
-          formatted_address: geoData.formatted_address,
+          formatted_address: placesData.formattedAddress,
           place_id: geoData.place_id,
-          website: placesData.website ?? null,
-          formatted_phone_number: placesData.formatted_phone_number ?? null,
-          opening_hours: placesData.openingHours
-            ? JSON.stringify(placesData.openingHours)
-            : null,
+          website: placesData.websiteUri ?? "",
+          formatted_phone_number: placesData.nationalPhoneNumber ?? "",
           static_map_uri: staticMap.uri,
           updated_at: new Date().toISOString(),
         };
@@ -103,6 +106,7 @@ export default function DevScreen() {
       setError(error as Error);
     } finally {
       setLoading(false);
+      console.log(`✅ ${providers.length} providers fetched!`);
     }
   }, []);
 
@@ -153,11 +157,45 @@ const fetchProviders = async (pageSize: number = PAGE_SIZE) => {
     }),
   });
   const json = await response.json();
-
   return json;
 };
 
-const fetchPlacesData = async (placeId: Provider["place_id"]) => {
+// Search by text query + latitude and longitude
+const fetchPlacesDataByTextQuery = async (
+  name: Provider["provider_name"],
+  location: Provider["location"]
+) => {
+  const response = await fetch(
+    "https://places.googleapis.com/v1/places:searchText",
+    {
+      method: "POST",
+      // @ts-ignore
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        "X-Goog-FieldMask":
+          "places.formattedAddress,places.nationalPhoneNumber,places.websiteUri",
+      },
+      body: JSON.stringify({
+        textQuery: name,
+        locationBias: {
+          circle: {
+            center: {
+              latitude: location.lat,
+              longitude: location.lng,
+            },
+            radius: 500, // Meters
+          },
+        },
+      }),
+    }
+  );
+  const json = await response.json();
+  return json?.places?.[0];
+};
+
+// Search by place_id
+const fetchPlacesDataByPlaceId = async (placeId: Provider["place_id"]) => {
   const fields = [
     "place_id",
     "opening_hours",

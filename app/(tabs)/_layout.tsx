@@ -27,11 +27,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: "Visit",
+          title: "Visits",
           tabBarIcon: ({ color }) => (
             <Octicons
               color={theme.color.violet[400]}
-              name="milestone"
+              name="checklist"
               size={24}
             />
           ),
