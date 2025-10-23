@@ -7,7 +7,7 @@ import { ProvidersProvider } from "@/providers/ProvidersProvider";
 import ProviderCardList from "@/components/ProviderCardList";
 import ProviderSearch from "@/components/ProviderSearch";
 
-export default function HomeScreen() {
+function HomeScreen() {
   return (
     <ProvidersProvider>
       <ScrollView style={styles.root}>
@@ -32,3 +32,5 @@ const styles = createThemedStyleSheet((theme) => ({
     paddingBottom: theme.spacing[2],
   },
 }));
+
+export default HomeScreen;

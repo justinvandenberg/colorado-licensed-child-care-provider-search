@@ -18,7 +18,7 @@ import Inline from "./Inline";
 import Text from "./Text";
 import { IconNames } from "./TextIcon";
 
-type ButtonProps = {
+export type ButtonProps = {
   disabled?: boolean;
   direction?: "forward" | "reverse";
   iconColor?: string;

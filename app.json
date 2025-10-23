@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "colorado-licensed-child-care-provider-search",
+    "name": "Colorado Licensed Child Care Provider Search",
     "slug": "colorado-licensed-child-care-provider-search",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -23,7 +23,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.justinvandenberg.coloradolicensedchildcareprovidersearch"
     },
     "web": {
       "output": "static",
@@ -31,6 +36,13 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location when in use."
+        }
+      ],
       [
         "expo-splash-screen",
         {
