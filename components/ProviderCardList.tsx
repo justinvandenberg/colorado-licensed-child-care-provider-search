@@ -1,21 +1,27 @@
-import { ActivityIndicator, View } from "react-native";
+import { View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { useProviders } from "@/providers/ProvidersProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 
-import Pagination from "./ui/Pagination";
 import Text from "./ui/Text";
 
 import ProviderCard from "./ProviderCard";
+import ProviderCardSkeleton from "./ProviderCard/ProviderCardSkeleton";
+import Pagination from "./ui/Pagination";
 
 const ProviderCardList = () => {
   const theme = useTheme();
   const { providers, loading, error, onNext, onPrev } = useProviders();
 
   if (loading) {
-    return <ActivityIndicator size="large" />;
+    return (
+      <View style={styles.skeletonWrapper}>
+        <ProviderCardSkeleton />
+        <ProviderCardSkeleton />
+      </View>
+    );
   }
 
   if (error) {
@@ -28,7 +34,7 @@ const ProviderCardList = () => {
 
   return (
     <View style={[styles.root]}>
-      <Text fontWeight={600} center={true}>
+      <Text color={theme.color.violet[400]} fontWeight={600} center={true}>
         Found {providers.length ?? 0} child care providers
       </Text>
       {providers.map((provider) => {
@@ -47,6 +53,9 @@ const styles = createThemedStyleSheet((theme) => ({
   root: {
     gap: theme.spacing[2],
     paddingTop: 2,
+  },
+  skeletonWrapper: {
+    gap: theme.spacing[2],
   },
 }));
 
