@@ -49,16 +49,30 @@ export default function DevScreen() {
         const geoData = await fetchGeoData(fullAddress);
         const location = geoData?.geometry?.location;
 
-        // Should prevent saving to Firebase
-        if (!location || !geoData.place_id) {
+        if (!location) {
           console.warn(
             `Geocode attempt failed for: ${provider.provider_id} (${fullAddress})`
           );
-          continue;
+          continue; // Should prevent saving to Firebase
         }
 
         /**
-         * Step 2: Download the static map image and save it to the local file system
+         * Step 2: Get the places data (website, phone number, etc.) from the provider_na,e
+         * Uses the lat and lng to help narrow results
+         */
+        const placesData = await fetchPlacesDataByTextQuery(
+          provider.provider_name,
+          location
+        );
+
+        if (!placesData) {
+          console.warn(
+            `Places data could not be found for: ${provider.provider_name} (${provider.provider_id})`
+          ); // Should NOT prevent saving to Firebase
+        }
+
+        /**
+         * Step 3: Download the static map image and save it to the local file system
          * The images are saved in the {Paths.cache}/DIR_NAME
          */
         const staticMap = await downloadStaticMap(
@@ -67,29 +81,12 @@ export default function DevScreen() {
           location
         );
 
-        // Should prevent saving to Firebase
         if (!staticMap) {
           console.warn(
             `A static map could not be found for: ${provider.provider_name} (${provider.provider_id})`
           );
           continue;
-        }
-
-        /**
-         * Step 3: Get the places data (website, phone number, etc.) from the provider_na,e
-         * Uses the lat and lng to help narrow results
-         */
-        const placesData = await fetchPlacesDataByTextQuery(
-          provider.provider_name,
-          location
-        );
-
-        // Should NOT prevent saving to Firebase
-        if (!placesData) {
-          console.warn(
-            `Places data could not be found for: ${provider.provider_name} (${provider.provider_id})`
-          );
-        }
+        } // Should prevent saving to Firebase
 
         // Step 4: Combine the data from the previous requests and update Firebase
         const updatedProvider: Provider = {
