@@ -31,37 +31,6 @@ export interface CdecProvider {
   governing_body: string;
 }
 
-type Period = {
-  open: {
-    date: Date;
-    truncated: boolean;
-    day: number;
-    hour: number;
-    minute: number;
-  };
-  close: {
-    date: Date;
-    truncated: boolean;
-    day: number;
-    hour: number;
-    minute: number;
-  };
-};
-
-/**
- * Google Maps API ref:
- * https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places#openinghours
- */
-export type OpeningHours = {
-  periods: Period[];
-  weekdayDescriptions: string[];
-  secondaryHoursType: string;
-  specialDays: string[];
-  nextOpenTime: string;
-  nextCloseTime: string;
-  openNow: boolean;
-};
-
 export type Provider = CdecProvider & {
   location: {
     lat: number;
@@ -71,7 +40,6 @@ export type Provider = CdecProvider & {
   formatted_address: string;
   website?: string;
   formatted_phone_number?: string;
-  opening_hours?: OpeningHours;
   static_map_uri: string;
   updated_at: string;
 };

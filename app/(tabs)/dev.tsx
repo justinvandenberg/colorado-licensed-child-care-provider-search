@@ -30,6 +30,7 @@ export default function DevScreen() {
   // Get the child care providers from CDEC and attach additional data from Google APIs
   const refetchProviders = useCallback(async () => {
     let totalProviders = 0;
+
     try {
       setLoading(true);
       setError(null);
@@ -39,6 +40,7 @@ export default function DevScreen() {
       }
 
       const providers = await fetchProviders(5); // TODO: Change this to a higher value (10000?)
+      totalProviders = providers.length;
 
       // Loop through the providers and add the additional data
       for (const provider of providers) {
@@ -106,7 +108,7 @@ export default function DevScreen() {
       setError(error as Error);
     } finally {
       setLoading(false);
-      console.log(`✅ ${providers.length} providers fetched!`);
+      console.log(`⬇️ ${totalProviders} providers fetched successfully`);
     }
   }, []);
 
