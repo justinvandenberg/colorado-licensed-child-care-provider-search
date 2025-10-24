@@ -10,11 +10,13 @@ import { useFonts } from "@expo-google-fonts/dm-sans/useFonts";
 import { FC } from "react";
 import {
   ColorValue,
-  Text as ReactNativeText,
+  Text as RnText,
   TextProps as RnTextProps,
 } from "react-native";
 
-type TextProps = {
+import { useTheme } from "@/providers/ThemeProvider";
+
+export type TextProps = {
   center?: boolean;
   color?: ColorValue;
   fontSize?: number;
@@ -41,6 +43,7 @@ const Text: FC<TextProps> = ({
   style = {},
   ...props
 }) => {
+  const theme = useTheme();
   // Ensure fonts are loaded
   let [fontsLoaded] = useFonts({
     DMSans_400Regular,
@@ -94,15 +97,15 @@ const Text: FC<TextProps> = ({
         break;
     }
     const letterSpacing = fontSize * -0.01; // -1%
-    const lineHeight = fontSize; // 100%
+    const lineHeight = fontSize * 1.05; // 105%
 
     return (
-      <ReactNativeText
+      <RnText
         {...props}
         style={[
           style,
           {
-            color,
+            color: color ?? theme.color.violet[950],
             lineHeight,
             fontFamily,
             fontSize,

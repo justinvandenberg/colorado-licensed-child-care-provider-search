@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -20,26 +21,24 @@ export const APP_TOKEN =
 export const PAGE_SIZE = 5;
 
 type ProviderContextType = {
+  currentProvider: Provider | null;
   error: Error | null;
   loading: boolean;
-  onPaginatePrev: () => void;
-  onPaginateNext: () => void;
   providers: Provider[];
   resetProviders: () => void;
-  totalPages: number;
+  setCurrentProvider: (provider: Provider | null) => void;
   totalProviders: number;
   updateZip: (zip: string) => void;
   zip: string;
 };
 
 const ProvidersContext = createContext<ProviderContextType>({
+  currentProvider: null,
   error: null,
   loading: false,
-  onPaginatePrev: () => {},
-  onPaginateNext: () => {},
   providers: [],
   resetProviders: () => {},
-  totalPages: 0,
+  setCurrentProvider: () => {},
   totalProviders: 0,
   updateZip: () => {},
   zip: "",
@@ -49,48 +48,16 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const [pageNumber, setPageNumber] = useState<number>(1);
-  // const [pageSize, setPageSize] = useState<number>(5);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const [totalProviders, setTotalProviders] = useState<number>(0);
   const [zip, setZip] = useState<string>("");
+  const [currentProvider, setCurrentProvider] = useState<Provider | null>(null);
 
-  const onPaginateNext = useCallback(() => {
-    if (pageNumber === totalPages) {
-      return;
-    }
-    setPageNumber((pageNumber) => pageNumber + 1);
-  }, [pageNumber, totalPages]);
-
-  const onPaginatePrev = useCallback(() => {
-    if (pageNumber === 1) {
-      return;
-    }
-    setPageNumber((pageNumber) => pageNumber - 1);
-  }, [pageNumber]);
+  const totalProviders = useMemo(() => {
+    return providers.length;
+  }, [providers]);
 
   const updateZip = useCallback((zip: string) => {
     setZip(zip);
-    setPageNumber(1); // Start over
   }, []);
-
-  // Update the total pages every time we fetch new providers
-  useEffect(() => {
-    /**
-     * Can't calculate without a zip code and
-     * don't need to recalculate past the first page
-     */
-    if (!zip || pageNumber > 1) {
-      return;
-    }
-
-    const fetchAllProviders = async () => {
-      const totalProviders = await fetchProviders(zip, 1, 50); // TODO: Make the cap much higher (10000?)
-      setTotalProviders(totalProviders.length);
-      setTotalPages(Math.ceil(totalProviders.length / PAGE_SIZE));
-    };
-    fetchAllProviders();
-  }, [providers, pageNumber, zip]);
 
   // Fetch the providers with matching provider_ids from the DB
   useEffect(() => {
@@ -103,11 +70,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
         setLoading(true);
         setError(null);
 
-        const cdecProviders: CdecProvider[] = await fetchProviders(
-          zip,
-          pageNumber,
-          PAGE_SIZE
-        );
+        const cdecProviders: CdecProvider[] = await fetchProviders(zip);
 
         if (!cdecProviders) {
           return;
@@ -144,7 +107,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
       }
     };
     fetchMatchingProviders();
-  }, [pageNumber, zip]);
+  }, [zip]);
 
   const resetProviders = useCallback(() => {
     setProviders([]);
@@ -154,13 +117,12 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   return (
     <ProvidersContext.Provider
       value={{
+        currentProvider,
         error,
         loading,
-        onPaginateNext,
-        onPaginatePrev,
         providers,
         resetProviders,
-        totalPages,
+        setCurrentProvider,
         totalProviders,
         updateZip,
         zip,
@@ -181,11 +143,7 @@ const useProviders = () => {
   return context;
 };
 
-const fetchProviders = async (
-  zip: string = "80516",
-  pageNumber: number = 1,
-  pageSize: number = PAGE_SIZE
-) => {
+const fetchProviders = async (zip: string) => {
   const response = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -194,12 +152,11 @@ const fetchProviders = async (
     },
     body: JSON.stringify({
       query: `SELECT * WHERE zip = '${zip}'`,
-      page: { pageNumber, pageSize },
+      page: { pageNumber: 1, pageSize: 50 }, // TODO: Make the cap much higher (5000?)
       includeSynthetic: false,
     }),
   });
   const json = await response.json();
-
   return json;
 };
 

@@ -11,9 +11,13 @@ import Text from "../ui/Text";
 
 import ProviderCapacities from "./ProviderCapacities";
 import ProviderContact from "./ProviderContact";
-import ProviderQualityRating from "./ProviderQualityRating";
+import ProviderStanding from "./ProviderStanding";
 
-const ProviderCard: FC<Provider> = ({
+type ProviderCardProps = {
+  onProviderDetails: () => void;
+} & Provider;
+
+const ProviderCard: FC<ProviderCardProps> = ({
   provider_id,
   provider_name,
   quality_rating,
@@ -29,13 +33,14 @@ const ProviderCard: FC<Provider> = ({
   formatted_phone_number,
   formatted_address,
   website,
+  onProviderDetails,
 }) => {
   return (
     <View style={styles.root}>
       <StaticMap imageUri={static_map_uri} />
       <View style={styles.titleWrapper}>
-        <ProviderQualityRating qualityRating={quality_rating} />
-        <Text fontSize={20} fontWeight={600} style={styles.title}>
+        <ProviderStanding qualityRating={quality_rating} />
+        <Text fontSize={20} fontWeight={600}>
           {provider_name}
         </Text>
         <ProviderContact
@@ -47,16 +52,14 @@ const ProviderCard: FC<Provider> = ({
       <ProviderCapacities
         infantCapacity={licensed_infant_capacity}
         toddlerCapacity={licensed_toddler_capacity}
-        preKCapacity={licensed_preschool_capacity}
+        preschoolCapacity={licensed_preschool_capacity}
         schoolAgeCapacity={licensed_school_age_capacity}
       />
       <Button
         direction="reverse"
         iconName="arrow-right"
-        onPress={() => {}}
-        style={styles.button}
+        onPress={onProviderDetails}
         title="See more"
-        titleStyle={styles.buttonTitle}
         variant="inverted"
       />
     </View>
@@ -70,21 +73,23 @@ const styles = createThemedStyleSheet((theme) => ({
     borderWidth: 1,
     borderRadius: theme.spacing[10],
     flex: 1,
-    gap: theme.spacing[2],
+    gap: theme.spacing[1],
     padding: theme.spacing[2],
     paddingBottom: 0,
+    // Shadow
+    // shadowColor: theme.color.violet[700],
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 3,
+    // },
+    // shadowOpacity: 0.17,
+    // shadowRadius: 3.05,
+    // elevation: 4,
   },
   titleWrapper: {
     gap: theme.spacing[2],
-    marginTop: theme.spacing[1],
-    paddingLeft: theme.spacing[2],
-    paddingRight: theme.spacing[2],
-  },
-  title: {
-    marginTop: theme.spacing[1],
-  },
-  button: {
-    marginTop: -8,
+    padding: theme.spacing[2],
+    paddingTop: theme.spacing[1],
   },
   buttonTitle: {
     color: theme.color.violet[400],

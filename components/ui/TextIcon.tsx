@@ -1,29 +1,24 @@
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import Octicons from "@expo/vector-icons/Octicons";
-import {
-  StyleProp,
-  StyleSheet,
-  TextProps,
-  TextStyle,
-  View,
-  ViewStyle,
-} from "react-native";
+import { ColorValue, StyleProp, View, ViewStyle } from "react-native";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
 import Inline from "./Inline";
-import Text from "./Text";
+import Text, { TextProps } from "./Text";
 
-export type IconNames = keyof typeof Octicons.glyphMap;
+export type IconName = keyof typeof Octicons.glyphMap;
 
 type TextIconProps = {
   direction?: "forwards" | "reverse";
-  iconColor?: string;
-  iconName: IconNames;
+  iconColor?: ColorValue;
+  iconName: IconName;
   iconSize?: number;
   style?: StyleProp<ViewStyle>;
   title: string;
-  titleStyle?: StyleProp<TextStyle>;
+  titleColor?: TextProps["color"];
+  titleSize?: TextProps["fontSize"];
+  titleWeight?: TextProps["fontWeight"];
 } & TextProps;
 
 const TextIcon = ({
@@ -33,10 +28,11 @@ const TextIcon = ({
   iconSize = 20,
   style,
   title,
-  titleStyle,
+  titleColor,
+  titleSize = 16,
+  titleWeight = 500,
 }: TextIconProps) => {
   const theme = useTheme();
-  const flattenedTitleStyle = StyleSheet.flatten(titleStyle);
 
   return (
     <Inline>
@@ -58,13 +54,10 @@ const TextIcon = ({
           ]}
         />
         <Text
-          color={
-            flattenedTitleStyle?.color
-              ? flattenedTitleStyle?.color
-              : theme.color.violet[950]
-          }
-          fontWeight={500}
-          style={[styles.title, titleStyle]}
+          color={titleColor ? titleColor : theme.color.violet[950]}
+          fontWeight={titleWeight}
+          fontSize={titleSize}
+          style={styles.title}
         >
           {title}
         </Text>
@@ -76,10 +69,12 @@ const TextIcon = ({
 const styles = createThemedStyleSheet((theme) => ({
   root: {
     alignItems: "center",
-    gap: theme.spacing[1],
+    gap: 6,
+    paddingTop: theme.spacing[2],
+    paddingBottom: theme.spacing[2],
   },
   title: {
-    marginTop: theme.spacing[1],
+    marginTop: 3,
   },
 }));
 

@@ -33,7 +33,7 @@ const styles = createThemedStyleSheet((theme) => ({
     borderColor: theme.color.violet[200],
     borderWidth: 1,
     borderRadius: theme.spacing[10],
-    flex: 1,
+    // flex: 1,
     gap: theme.spacing[2],
     padding: theme.spacing[2],
   },

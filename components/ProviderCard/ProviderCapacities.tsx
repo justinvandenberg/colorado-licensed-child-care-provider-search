@@ -9,22 +9,22 @@ import ProviderCapacity from "./ProviderCapacity";
 
 type ProviderCapacitiesProps = {
   infantCapacity: Provider["licensed_infant_capacity"];
-  toddlerCapacity: Provider["licensed_toddler_capacity"];
-  preKCapacity: Provider["licensed_school_age_capacity"];
+  preschoolCapacity: Provider["licensed_school_age_capacity"];
   schoolAgeCapacity: Provider["licensed_preschool_and_school_age_capacity"];
+  toddlerCapacity: Provider["licensed_toddler_capacity"];
 };
 
 const ProviderCapacities: FC<ProviderCapacitiesProps> = ({
   infantCapacity = 0,
-  toddlerCapacity = 0,
-  preKCapacity = 0,
+  preschoolCapacity = 0,
   schoolAgeCapacity = 0,
+  toddlerCapacity = 0,
 }) => {
   return (
     <View style={styles.root}>
       <ProviderCapacity title="Infant" count={infantCapacity} />
       <ProviderCapacity title="Toddler" count={toddlerCapacity} />
-      <ProviderCapacity title="PreK" count={preKCapacity} />
+      <ProviderCapacity title="PreK" count={preschoolCapacity} />
       <ProviderCapacity title="K-12" count={schoolAgeCapacity} />
     </View>
   );

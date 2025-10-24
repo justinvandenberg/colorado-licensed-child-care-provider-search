@@ -8,11 +8,11 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import Text from "../ui/Text";
 
 interface ProviderCapacityProps {
-  title: string;
   count?: number;
+  title: string;
 }
 
-const ProviderCapacity: FC<ProviderCapacityProps> = ({ title, count = 0 }) => {
+const ProviderCapacity: FC<ProviderCapacityProps> = ({ count = 0, title }) => {
   return (
     <View style={[styles.root]}>
       <Text color={theme.color.white} fontSize={14}>
