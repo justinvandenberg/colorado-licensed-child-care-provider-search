@@ -91,6 +91,7 @@ export default function DevScreen() {
         // Step 4: Combine the data from the previous requests and update Firebase
         const updatedProvider: Provider = {
           ...provider,
+          state: provider.state ?? "CO", // Sometime the state is undefined (bad data?)
           location,
           formatted_address: placesData.formattedAddress,
           place_id: geoData.place_id,
@@ -195,12 +196,7 @@ const fetchPlacesDataByTextQuery = async (
 
 // Search by place_id
 const fetchPlacesDataByPlaceId = async (placeId: Provider["place_id"]) => {
-  const fields = [
-    "place_id",
-    "opening_hours",
-    "website",
-    "formatted_phone_number",
-  ].join(",");
+  const fields = ["place_id", "website", "formatted_phone_number"].join(",");
   const response = await fetch(
     `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${GOOGLE_MAPS_API_KEY}`
   );

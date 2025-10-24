@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FC, useState } from "react";
 import { View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
@@ -10,9 +10,14 @@ import LocationButton from "./ui/LocationButton";
 import Text from "./ui/Text";
 import TextInput from "./ui/TextInput";
 
-const ProviderSearch = () => {
+interface ProviderSearchProps {
+  disabled?: boolean;
+}
+
+const ProviderSearch: FC<ProviderSearchProps> = ({ disabled = false }) => {
   const theme = useTheme();
   const { updateZip, resetProviders } = useProviders();
+
   const [zip, setZip] = useState<string>("");
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
@@ -24,6 +29,7 @@ const ProviderSearch = () => {
       <View style={styles.form}>
         <View style={styles.textInputWrapper}>
           <TextInput
+            disabled={disabled}
             style={[
               styles.textInput,
               {
@@ -75,6 +81,7 @@ const ProviderSearch = () => {
           />
         </View>
         <LocationButton
+          disabled={disabled}
           onLocationPermissionGranted={(zip) => {
             if (!zip) {
               return;
@@ -90,15 +97,24 @@ const ProviderSearch = () => {
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
-    gap: theme.spacing[2],
     backgroundColor: theme.color.violet[400],
-    marginTop: theme.spacing[2],
-    padding: theme.spacing[4],
-    paddingTop: theme.spacing[24],
     borderTopLeftRadius: theme.spacing[12],
     borderTopRightRadius: theme.spacing[12],
     borderBottomLeftRadius: theme.spacing[11],
     borderBottomRightRadius: theme.spacing[11],
+    gap: theme.spacing[2],
+    marginBottom: theme.spacing[1],
+    padding: theme.spacing[4],
+    paddingTop: theme.spacing[24],
+    // Shadow
+    // shadowColor: theme.color.violet[700],
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 6,
+    // },
+    // shadowOpacity: 0.2,
+    // shadowRadius: 5.62,
+    // elevation: 8,
   },
   form: {
     flexDirection: "row",

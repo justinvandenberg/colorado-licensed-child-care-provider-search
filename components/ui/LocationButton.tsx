@@ -6,10 +6,12 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import Button from "./Button";
 
 interface LocationButtonProps {
+  disabled?: boolean;
   onLocationPermissionGranted: (zip: string | null) => void;
 }
 
 const LocationButton: FC<LocationButtonProps> = ({
+  disabled = false,
   onLocationPermissionGranted,
 }) => {
   const getCurrentLocation = useCallback(async () => {
@@ -38,6 +40,7 @@ const LocationButton: FC<LocationButtonProps> = ({
 
   return (
     <Button
+      disabled={disabled}
       iconOnly={true}
       iconName="location"
       onPress={getCurrentLocation}

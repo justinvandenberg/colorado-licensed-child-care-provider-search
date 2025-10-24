@@ -5,8 +5,6 @@ import {
   Pressable,
   PressableProps,
   StyleProp,
-  StyleSheet,
-  TextStyle,
   ViewStyle,
 } from "react-native";
 
@@ -15,21 +13,23 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import { useTheme } from "@/providers/ThemeProvider";
 
 import Inline from "./Inline";
-import Text from "./Text";
-import { IconNames } from "./TextIcon";
+import Text, { TextProps } from "./Text";
+import { IconName } from "./TextIcon";
 
 export type ButtonProps = {
   disabled?: boolean;
   direction?: "forward" | "reverse";
   iconColor?: string;
-  iconName?: IconNames;
+  iconName?: IconName;
   iconOnly?: boolean;
   iconSize?: number;
   onPress: (event: GestureResponderEvent) => void;
   size?: "compact";
   style?: StyleProp<ViewStyle>;
-  titleStyle?: StyleProp<TextStyle>;
   title: string;
+  titleColor?: TextProps["color"];
+  titleSize?: TextProps["fontSize"];
+  titleWeight?: TextProps["fontWeight"];
   variant?: "inverted";
 } & PressableProps;
 
@@ -43,12 +43,13 @@ const Button = ({
   onPress,
   size,
   style,
-  titleStyle,
   title,
+  titleColor,
+  titleSize = 16,
+  titleWeight = 500,
   variant,
 }: ButtonProps) => {
   const theme = useTheme();
-  const flattenedTitleStyle = StyleSheet.flatten(titleStyle);
 
   const Button = useMemo(() => {
     return (
@@ -87,17 +88,19 @@ const Button = ({
         {!iconOnly && (
           <Text
             color={
-              flattenedTitleStyle?.color
-                ? flattenedTitleStyle?.color
+              titleColor
+                ? titleColor
                 : size === "compact"
                 ? theme.color.violet[950]
                 : variant === "inverted"
                 ? theme.color.violet[400]
                 : theme.color.white
             }
-            fontSize={size === "compact" ? 14 : 16}
-            fontWeight={size === "compact" ? 500 : 600}
-            style={[styles.title, titleStyle]}
+            fontSize={titleSize ? titleSize : size === "compact" ? 14 : 16}
+            fontWeight={
+              titleWeight ? titleWeight : size === "compact" ? 500 : 600
+            }
+            style={styles.title}
           >
             {title}
           </Text>
@@ -107,7 +110,6 @@ const Button = ({
   }, [
     direction,
     disabled,
-    flattenedTitleStyle?.color,
     iconColor,
     iconName,
     iconOnly,
@@ -118,7 +120,9 @@ const Button = ({
     theme.color.violet,
     theme.color.white,
     title,
-    titleStyle,
+    titleColor,
+    titleSize,
+    titleWeight,
     variant,
   ]);
 
@@ -131,11 +135,10 @@ const Button = ({
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
-    alignItems: "center",
     backgroundColor: theme.color.violet[400],
     borderRadius: theme.spacing[6],
     flexDirection: "row",
-    gap: theme.spacing[1],
+    gap: 6,
     justifyContent: "center",
     padding: theme.spacing[6],
   },
@@ -151,7 +154,7 @@ const styles = createThemedStyleSheet((theme) => ({
     backgroundColor: theme.color.transparent,
   },
   title: {
-    marginTop: theme.spacing[1],
+    marginTop: 3,
   },
 }));
 

@@ -1,7 +1,9 @@
-import { FC } from "react";
+import { FC, useMemo } from "react";
 import { View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
+import { useTheme } from "@/providers/ThemeProvider";
 
 import Button from "../ui/Button";
 
@@ -18,8 +20,24 @@ const ProviderContact: FC<ProviderContactProps> = ({
   phoneNumber,
   website,
 }) => {
+  const theme = useTheme();
+  const formattedAddress = useMemo(() => {
+    let addressParts = address.replace(", USA", "").split(", ");
+    const addressLine1 = addressParts[0];
+    const addressLine2 = `${addressParts[1]}, ${addressParts[2]}`;
+    return [addressLine1, addressLine2].join("\n");
+  }, [address]);
+
   return (
-    <View style={styles.root}>
+    <View
+      style={[
+        {
+          gap:
+            orientation === "horizontal" ? theme.spacing[4] : theme.spacing[1],
+          flexDirection: orientation === "vertical" ? "column" : "row",
+        },
+      ]}
+    >
       {website && (
         <Button
           iconName="browser"
@@ -44,8 +62,8 @@ const ProviderContact: FC<ProviderContactProps> = ({
         iconName="location"
         onPress={() => {}}
         size="compact"
-        style={styles.button}
-        title="Maps"
+        style={[styles.button]}
+        title={orientation === "horizontal" ? "Maps" : formattedAddress}
         variant="inverted"
       />
     </View>
@@ -53,14 +71,10 @@ const ProviderContact: FC<ProviderContactProps> = ({
 };
 
 const styles = createThemedStyleSheet((theme) => ({
-  root: {
-    flexDirection: "row",
-    gap: theme.spacing[4],
-  },
   button: {
     paddingRight: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
+    paddingTop: 2,
+    paddingBottom: 2,
     paddingLeft: 0,
   },
 }));

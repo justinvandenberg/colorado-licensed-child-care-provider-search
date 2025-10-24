@@ -13,11 +13,12 @@ import {
 import { useTheme } from "@/providers/ThemeProvider";
 
 import Text from "./Text";
-import { IconNames } from "./TextIcon";
+import { IconName } from "./TextIcon";
 
 type TextInputProps = {
+  disabled?: boolean;
   iconColor?: ColorValue;
-  iconName?: IconNames;
+  iconName?: IconName;
   label: string;
   labelColor?: ColorValue;
   showLabel?: boolean;
@@ -26,6 +27,7 @@ type TextInputProps = {
 } & RnTextInputProps;
 
 const TextInput: FC<TextInputProps> = ({
+  disabled = false,
   iconColor,
   iconName,
   label,
@@ -56,6 +58,7 @@ const TextInput: FC<TextInputProps> = ({
         )}
         <RnTextInput
           {...props}
+          editable={!disabled}
           onChangeText={onChangeText}
           style={[styles.textInput, textInputStyle]}
           value={value}

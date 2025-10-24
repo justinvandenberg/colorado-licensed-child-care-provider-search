@@ -4,21 +4,20 @@ import { Provider } from "@/types/Provider";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
-import TextIcon, { IconNames } from "../ui/TextIcon";
+import TextIcon, { IconName } from "../ui/TextIcon";
 
-type ProviderQualityRatingProps = {
+type ProviderStandingProps = {
   qualityRating: Provider["quality_rating"];
 };
 
-const ProviderQualityRating: FC<ProviderQualityRatingProps> = ({
-  qualityRating,
-}) => {
+const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
   const theme = useTheme();
   const props = useMemo(() => {
-    let iconName: IconNames = "hourglass";
+    let iconName: IconName = "hourglass";
     let iconColor = theme.color.red[400];
     let title = "Not yet rated";
     let titleColor = theme.color.red[700];
+    // let bgColor = theme.color.red[100];
 
     switch (qualityRating) {
       case "1":
@@ -26,6 +25,7 @@ const ProviderQualityRating: FC<ProviderQualityRatingProps> = ({
         iconColor = theme.color.yellow[400];
         title = "Licensed";
         titleColor = theme.color.yellow[700];
+        // bgColor = theme.color.yellow[100];
         break;
 
       case "2":
@@ -33,6 +33,7 @@ const ProviderQualityRating: FC<ProviderQualityRatingProps> = ({
         iconColor = theme.color.violet[400];
         title = "Good standing";
         titleColor = theme.color.violet[700];
+        // bgColor = theme.color.violet[100];
         break;
 
       case "3":
@@ -42,13 +43,14 @@ const ProviderQualityRating: FC<ProviderQualityRatingProps> = ({
         iconColor = theme.color.green[400];
         title = "High-quality";
         titleColor = theme.color.green[700];
+        // bgColor = theme.color.green[100];
         break;
     }
     return {
       iconName,
       iconColor,
       title,
-      titleStyle: { color: titleColor },
+      titleColor,
     };
   }, [
     qualityRating,
@@ -61,4 +63,4 @@ const ProviderQualityRating: FC<ProviderQualityRatingProps> = ({
   return <TextIcon {...props} />;
 };
 
-export default ProviderQualityRating;
+export default ProviderStanding;
