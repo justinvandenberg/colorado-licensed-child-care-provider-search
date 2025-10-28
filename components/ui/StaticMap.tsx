@@ -10,9 +10,12 @@ interface StaticMapProps {
 
 const StaticMap: FC<StaticMapProps> = ({ imageUri }) => {
   return (
-    <View style={[styles.root]}>
+    <View style={styles.root}>
       {imageUri && (
-        <Image source={imageUri} contentFit="cover" style={{ flex: 1 }} />
+        <>
+          <Image source={imageUri} contentFit="cover" style={{ flex: 1 }} />
+          <View style={styles.overlay}></View>
+        </>
       )}
     </View>
   );
@@ -24,6 +27,17 @@ const styles = createThemedStyleSheet((theme) => ({
     backgroundColor: theme.color.violet[100],
     borderRadius: theme.spacing[8],
     overflow: "hidden",
+    position: "relative",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.color.violet[400],
+    mixBlendMode: "overlay",
+    // opacity: 0,
   },
 }));
 

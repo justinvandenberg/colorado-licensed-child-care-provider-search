@@ -2,8 +2,6 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { Tabs } from "expo-router";
 import React from "react";
 
-import { HapticTab } from "@/components/haptic-tab";
-
 import { useTheme } from "@/providers/ThemeProvider";
 
 export default function TabLayout() {
@@ -12,20 +10,58 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarStyle: {
+          alignItems: "center",
+          backgroundColor: theme.color.white,
+          borderWidth: 0,
+          borderRadius: 32,
+          bottom: theme.spacing[3],
+          left: 0,
+          minHeight: theme.spacing[20],
+          maxHeight: theme.spacing[20],
+          padding: 0,
+          paddingTop: 6,
+          position: "absolute",
+          marginHorizontal: "15%",
+          right: 0,
+          // Shadow
+          shadowColor: theme.color.violet[700],
+          shadowOffset: {
+            width: 0,
+            height: 6,
+          },
+          shadowOpacity: 0.2,
+          shadowRadius: 5.62,
+          elevation: 8,
+        },
+        tabBarItemStyle: {
+          alignItems: "center",
+          flex: 1,
+          justifyContent: "center",
+          marginHorizontal: 2,
+          maxWidth: theme.spacing[18],
+          minHeight: theme.spacing[18],
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: {
+          color: theme.color.violet[400],
+          fontFamily: "DMSans_600SemiBold",
+          fontSize: 12,
+          marginTop: theme.spacing[1],
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Search",
           tabBarIcon: ({ color }) => (
             <Octicons color={theme.color.violet[400]} name="search" size={24} />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="visits"
         options={{
           title: "Visits",
           tabBarIcon: ({ color }) => (

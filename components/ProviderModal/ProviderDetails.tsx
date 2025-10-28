@@ -33,7 +33,9 @@ const ProviderDetails: FC<ProviderDetailsProps> = ({
         {Object.entries(listItems).map(([key, value]) => (
           <View key={key} style={styles.listItem}>
             <Text>{key}</Text>
-            <Text fontWeight={600}>{value}</Text>
+            <Text fontWeight={600} style={styles.listItemValue}>
+              {value === "undefined" ? "NA" : value}
+            </Text>
           </View>
         ))}
       </View>
@@ -52,6 +54,9 @@ const styles = createThemedStyleSheet((theme) => ({
   listItem: {
     flexDirection: "row",
     gap: theme.spacing[1],
+  },
+  listItemValue: {
+    flexShrink: 1,
   },
 }));
 
