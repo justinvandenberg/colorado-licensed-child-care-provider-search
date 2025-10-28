@@ -17,7 +17,6 @@ interface ProviderSearchProps {
 const ProviderSearch: FC<ProviderSearchProps> = ({ disabled = false }) => {
   const theme = useTheme();
   const { updateZip, resetProviders } = useProviders();
-
   const [zip, setZip] = useState<string>("");
   const [isFocused, setIsFocused] = useState<boolean>(false);
 

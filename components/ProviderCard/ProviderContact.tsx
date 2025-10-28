@@ -22,9 +22,14 @@ const ProviderContact: FC<ProviderContactProps> = ({
 }) => {
   const theme = useTheme();
   const formattedAddress = useMemo(() => {
+    if (!address) {
+      return "";
+    }
+
     let addressParts = address.replace(", USA", "").split(", ");
     const addressLine1 = addressParts[0];
     const addressLine2 = `${addressParts[1]}, ${addressParts[2]}`;
+
     return [addressLine1, addressLine2].join("\n");
   }, [address]);
 
@@ -54,7 +59,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
           onPress={() => {}}
           size="compact"
           style={styles.button}
-          title={phoneNumber}
+          title={orientation === "horizontal" ? "Phone" : phoneNumber}
           variant="inverted"
         />
       )}

@@ -1,3 +1,4 @@
+import { DMMono_400Regular } from "@expo-google-fonts/dm-mono/400Regular";
 import { DMSans_400Regular } from "@expo-google-fonts/dm-sans/400Regular";
 import { DMSans_400Regular_Italic } from "@expo-google-fonts/dm-sans/400Regular_Italic";
 import { DMSans_500Medium } from "@expo-google-fonts/dm-sans/500Medium";
@@ -32,7 +33,8 @@ export type TextProps = {
     | "600i"
     | 700
     | "700"
-    | "700i";
+    | "700i"
+    | "mono";
 } & RnTextProps;
 
 const Text: FC<TextProps> = ({
@@ -54,12 +56,15 @@ const Text: FC<TextProps> = ({
     DMSans_500Medium_Italic,
     DMSans_600SemiBold_Italic,
     DMSans_700Bold_Italic,
+    DMMono_400Regular,
   });
 
   if (!fontsLoaded) {
     return null;
   } else {
     let fontFamily;
+    let letterSpacing = fontSize * -0.01; // -1%
+    let lineHeight = fontSize * 1.05; // 105%
     switch (fontWeight) {
       case 400:
       case "400":
@@ -71,39 +76,35 @@ const Text: FC<TextProps> = ({
       case 500:
       case "500":
         fontFamily = "DMSans_500Medium";
-        fontWeight = 600;
         break;
       case "500i":
         fontFamily = "DMSans_500Medium_Italic";
-        fontWeight = 600;
         break;
       case 600:
       case "600":
         fontFamily = "DMSans_600SemiBold";
-        fontWeight = 600;
         break;
       case "600i":
         fontFamily = "DMSans_600SemiBold_Italic";
-        fontWeight = 600;
         break;
       case 700:
       case "700":
         fontFamily = "DMSans_700Bold";
-        fontWeight = 700;
         break;
       case "700i":
         fontFamily = "DMSans_700Bold_Italic";
-        fontWeight = 700;
+        break;
+      case "mono":
+        fontFamily = "DMMono_400Regular";
+        letterSpacing = 0;
+        lineHeight = fontSize;
         break;
     }
-    const letterSpacing = fontSize * -0.01; // -1%
-    const lineHeight = fontSize * 1.05; // 105%
 
     return (
       <RnText
         {...props}
         style={[
-          style,
           {
             color: color ?? theme.color.violet[950],
             lineHeight,
@@ -112,6 +113,7 @@ const Text: FC<TextProps> = ({
             letterSpacing,
             textAlign: center ? "center" : "left",
           },
+          style,
         ]}
       />
     );

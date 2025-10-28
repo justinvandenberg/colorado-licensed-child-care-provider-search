@@ -1,5 +1,3 @@
-import { firebaseDb } from "@/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
 import {
   createContext,
   PropsWithChildren,
@@ -10,15 +8,9 @@ import {
   useState,
 } from "react";
 
-import { CdecProvider, Provider } from "@/types/Provider";
+import { Provider } from "@/types/Provider";
+import { fetchDbProviders } from "@/utilities/fetch";
 import { Keyboard } from "react-native";
-
-// CDEC API
-export const API_URL =
-  "https://data.colorado.gov/api/v3/views/a9rr-k8mu/query.json";
-export const APP_TOKEN =
-  process.env.CDEC_APP_TOKEN ?? process.env.EXPO_PUBLIC_CDEC_APP_TOKEN;
-export const PAGE_SIZE = 5;
 
 type ProviderContextType = {
   currentProvider: Provider | null;
@@ -59,54 +51,27 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
     setZip(zip);
   }, []);
 
-  // Fetch the providers with matching provider_ids from the DB
   useEffect(() => {
     if (!zip) {
       return;
     }
 
-    const fetchMatchingProviders = async () => {
+    // Fetch the providers with matching provider_ids from the db
+    const fetchProviders = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        const cdecProviders: CdecProvider[] = await fetchProviders(zip);
-
-        if (!cdecProviders) {
-          return;
-        }
-
-        const providerIds: string[] = cdecProviders.map(
-          (provider) => provider.provider_id
-        );
-
-        const matchingProviders = (
-          await Promise.all(
-            providerIds.map(async (provider_id) => {
-              try {
-                const providerSnap = await getDoc(
-                  doc(firebaseDb, "providers", provider_id)
-                );
-                return providerSnap.exists()
-                  ? (providerSnap.data() as Provider)
-                  : null;
-              } catch (error) {
-                console.warn(`Failed to fetch provider ${provider_id}:`, error);
-                return null;
-              }
-            })
-          )
-        ).filter((provider): provider is Provider => provider !== null);
-        setProviders(matchingProviders);
-        Keyboard.dismiss();
+        const dbProviders = await fetchDbProviders(zip);
+        setProviders(dbProviders || []);
       } catch (error) {
         console.warn("Could not retrieve entries from Firebase:", error);
         setError(error as Error);
       } finally {
         setLoading(false);
+        Keyboard.dismiss();
       }
     };
-    fetchMatchingProviders();
+    fetchProviders();
   }, [zip]);
 
   const resetProviders = useCallback(() => {
@@ -137,27 +102,10 @@ const useProviders = () => {
   const context = useContext(ProvidersContext);
 
   if (!context) {
-    throw new Error("useTheme must be used within a ProvidersProvider");
+    throw new Error("useProviders must be used within a ProvidersProvider");
   }
 
   return context;
-};
-
-const fetchProviders = async (zip: string) => {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-App-Token": `${APP_TOKEN}`,
-    },
-    body: JSON.stringify({
-      query: `SELECT * WHERE zip = '${zip}'`,
-      page: { pageNumber: 1, pageSize: 50 }, // TODO: Make the cap much higher (5000?)
-      includeSynthetic: false,
-    }),
-  });
-  const json = await response.json();
-  return json;
 };
 
 export { ProvidersProvider, useProviders };
