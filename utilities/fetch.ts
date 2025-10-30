@@ -5,6 +5,10 @@ import { CdecProvider, Provider, ProviderFilters } from "@/types/Provider";
 
 import { firebaseDb } from "@/firebaseConfig";
 
+// File system
+const DIR_NAME = "maps";
+const FILE_EXT = ".jpg";
+
 // CDEC API
 const CDEC_API_URL =
   "https://data.colorado.gov/api/v3/views/a9rr-k8mu/query.json";
@@ -156,7 +160,11 @@ const updateDbProvider = async (docId: string, data: Partial<Provider>) => {
 const fetchDbProviders = async (
   zip: string,
   providerFilters: ProviderFilters
-) => {
+): Promise<Provider[]> => {
+  if (!zip) {
+    return [];
+  }
+
   const baseQuery = `SELECT * WHERE zip = '${zip}'`;
   const capacityQueries: string[] = [];
   const settingQueries: string[] = [];
@@ -201,52 +209,163 @@ const fetchDbProviders = async (
   );
 
   if (!cdecProviders) {
-    return;
+    return [];
   }
 
-  const providerIds: string[] = cdecProviders.map(
-    (provider) => provider.provider_id
-  );
+  const ids: string[] = cdecProviders.map((provider) => provider.provider_id);
 
   // Using the provider ids get all of the matching entries in the db
-  const providers = (
+  const dbProviders = (
     await Promise.all(
-      providerIds.map(async (provider_id) => {
+      ids.map(async (provider_id) => {
         try {
           const providerSnap = await getDoc(
             doc(firebaseDb, "providers", provider_id)
           );
           return providerSnap.exists()
             ? (providerSnap.data() as Provider)
-            : null;
+            : undefined;
         } catch (error) {
           console.warn(`Failed to fetch provider ${provider_id}:`, error);
-          return null;
+          return undefined;
         }
       })
     )
-  ).filter((provider): provider is Provider => provider !== null);
+  ).filter((provider): provider is Provider => provider !== undefined);
 
-  return providers;
+  return dbProviders;
 };
 
 /**
  * Fetches a provider from the db using the provider id
- * @param providerId {string} The id of the provider
+ * @param id {string} The id of the provider
  * @returns {Provider} A provider
  */
-const fetchDbProvider = async (providerId: string) => {
-  const providerSnap = await getDoc(doc(firebaseDb, "providers", providerId));
+const fetchDbProvider = async (id: string) => {
+  const providerSnap = await getDoc(doc(firebaseDb, "providers", id));
   return providerSnap.exists() ? (providerSnap.data() as Provider) : null;
 };
 
+const refetchProviders = async (
+  ignoreDb: boolean = false
+): Promise<Provider[]> => {
+  if (!firebaseDb) {
+    throw new Error("Firestore instance is invalid");
+  }
+
+  let newProviders = [];
+  // TODO: Remove zip from this query, it's just to limit dev results
+  const cdecProviders = await fetchCdecProviders(
+    "SELECT * WHERE zip = '80516'"
+  );
+
+  // Loop through the providers and add any additional data
+  for (const provider of cdecProviders) {
+    let dbProvider;
+
+    // Don't bother fetching from the db if we want to refetch everything
+    if (!ignoreDb) {
+      dbProvider = await fetchDbProvider(provider.provider_id);
+    }
+
+    /**
+     * If the provider exists in the db
+     * and the street address matches the one from the CDEC api
+     * return the provider from the db
+     */
+    if (provider.street_address === dbProvider?.street_address) {
+      await updateDbProvider(provider.provider_id, {
+        ...providerToCdecProvider(provider),
+        updated_at: new Date().toISOString(),
+      });
+      continue;
+    }
+
+    // Get the geo data based off proximity to the address from the CDEC api
+    const fullAddress = `${provider.street_address}, ${provider.city}, ${provider.state} ${provider.zip}`;
+    const geoData = await fetchGeoData(fullAddress);
+    const location = geoData?.geometry?.location;
+
+    if (!location) {
+      console.warn(
+        `Geocode attempt failed for: ${provider.provider_id} (${fullAddress})`
+      );
+      continue;
+    }
+
+    /**
+     * Get the places data (website, phone number, etc.) from the provider_name
+     * Uses the lat and lng to help narrow results
+     */
+    const placesData = await fetchPlacesData(provider.provider_name, location);
+
+    if (!placesData) {
+      console.warn(
+        `Places data could not be found for: ${provider.provider_name} (${provider.provider_id})`
+      );
+      // Places data should NOT prevent saving to Firebase
+    }
+
+    /**
+     * Download the static map image and save it to the local file system
+     * The images are saved in the {Paths.cache}/DIR_NAME
+     */
+    const staticMap = await downloadStaticMap(
+      DIR_NAME,
+      `${provider.provider_id}${FILE_EXT}`,
+      location
+    );
+
+    if (!staticMap) {
+      console.warn(
+        `A static map could not be found for: ${provider.provider_name} (${provider.provider_id})`
+      );
+    }
+
+    // Combine the data from the above requests and update the db
+    const newProvider: Provider = {
+      ...provider,
+      state: provider.state || "CO", // Sometimes the state is undefined?
+      location,
+      formatted_address: placesData?.formattedAddress || "",
+      place_id: geoData?.place_id || "",
+      website: placesData?.websiteUri || "",
+      formatted_phone_number: placesData?.nationalPhoneNumber || "",
+      static_map_uri: staticMap.uri || "",
+      updated_at: new Date().toISOString(),
+    };
+    await setDbProvider(provider.provider_id, newProvider);
+    newProviders.push(newProvider);
+  }
+
+  return newProviders;
+};
+
+const providerToCdecProvider = (provider: Provider): CdecProvider => {
+  const keysToRemove: (keyof Provider)[] = [
+    "location",
+    "place_id",
+    "formatted_address",
+    "website",
+    "formatted_phone_number",
+    "static_map_uri",
+  ];
+  return Object.fromEntries(
+    Object.entries(provider).filter(
+      ([key]) => !keysToRemove.includes(key as keyof CdecProvider)
+    )
+  ) as CdecProvider;
+};
+
 export {
+  DIR_NAME,
   downloadStaticMap,
   fetchCdecProviders,
   fetchDbProvider,
   fetchDbProviders,
   fetchGeoData,
   fetchPlacesData,
+  refetchProviders,
   setDbProvider,
   updateDbProvider,
 };
