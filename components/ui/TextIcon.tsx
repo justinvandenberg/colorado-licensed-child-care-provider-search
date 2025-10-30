@@ -49,9 +49,6 @@ const TextIcon = ({
           color={iconColor ? iconColor : theme.color.violet[400]}
           name={iconName}
           size={iconSize}
-          style={[
-            { [direction === "reverse" ? "marginRight" : "marginLeft"]: -2 },
-          ]}
         />
         <Text
           color={titleColor ? titleColor : theme.color.violet[950]}

@@ -46,7 +46,7 @@ const Button = ({
   title,
   titleColor,
   titleSize = 16,
-  titleWeight = 500,
+  titleWeight = 600,
   variant,
 }: ButtonProps) => {
   const theme = useTheme();
@@ -80,9 +80,6 @@ const Button = ({
             }
             name={iconName}
             size={iconSize}
-            style={[
-              { [direction === "reverse" ? "marginRight" : "marginLeft"]: -2 },
-            ]}
           />
         )}
         {!iconOnly && (
@@ -97,9 +94,7 @@ const Button = ({
                 : theme.color.white
             }
             fontSize={titleSize ? titleSize : size === "compact" ? 14 : 16}
-            fontWeight={
-              titleWeight ? titleWeight : size === "compact" ? 500 : 600
-            }
+            fontWeight={titleWeight ? titleWeight : 600}
             style={styles.title}
           >
             {title}
@@ -144,11 +139,9 @@ const styles = createThemedStyleSheet((theme) => ({
   },
   compact: {
     backgroundColor: theme.color.violet[100],
-    borderRadius: theme.spacing[3],
-    paddingLeft: theme.spacing[3],
-    paddingRight: theme.spacing[3],
-    paddingTop: theme.spacing[2],
-    paddingBottom: theme.spacing[2],
+    borderRadius: 12,
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[2],
   },
   inverted: {
     backgroundColor: theme.color.transparent,

@@ -50,6 +50,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
           size="compact"
           style={styles.button}
           title="Website"
+          titleWeight={500}
           variant="inverted"
         />
       )}
@@ -60,6 +61,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
           size="compact"
           style={styles.button}
           title={orientation === "horizontal" ? "Phone" : phoneNumber}
+          titleWeight={500}
           variant="inverted"
         />
       )}
@@ -69,6 +71,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
         size="compact"
         style={[styles.button]}
         title={orientation === "horizontal" ? "Maps" : formattedAddress}
+        titleWeight={500}
         variant="inverted"
       />
     </View>

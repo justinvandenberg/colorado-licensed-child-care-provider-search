@@ -1,7 +1,7 @@
 import { Directory, File, Paths } from "expo-file-system";
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
-import { CdecProvider, Provider } from "@/types/Provider";
+import { CdecProvider, Provider, ProviderFilters } from "@/types/Provider";
 
 import { firebaseDb } from "@/firebaseConfig";
 
@@ -153,10 +153,51 @@ const updateDbProvider = async (docId: string, data: Partial<Provider>) => {
  * @param zip {string} The zip code the search within
  * @returns {Provider[]} An array of providers
  */
-const fetchDbProviders = async (zip: string) => {
+const fetchDbProviders = async (
+  zip: string,
+  providerFilters: ProviderFilters
+) => {
+  const baseQuery = `SELECT * WHERE zip = '${zip}'`;
+  const capacityQueries: string[] = [];
+  const settingQueries: string[] = [];
+  const programQueries: string[] = [];
+
+  // Map the boolean providerFilters values to query clauses
+  for (const [key, value] of Object.entries(providerFilters)) {
+    if (!value) {
+      continue;
+    }
+
+    if (key.startsWith("licensed_")) {
+      capacityQueries.push(`\`${key}\` > 0`);
+      continue;
+    }
+
+    if (key.startsWith("provider_service_type.")) {
+      const [, value] = key.split(".");
+      settingQueries.push(`"${value}"`);
+      continue;
+    }
+
+    if (key.startsWith("cccap_")) {
+      programQueries.push(`\`${key}\` == TRUE`);
+    }
+  }
+
+  const clauses = [
+    capacityQueries.length && `(${capacityQueries.join(" OR ")})`,
+    settingQueries.length &&
+      `caseless_one_of(\`provider_service_type\`, ${settingQueries.join(
+        ", "
+      )})`,
+    programQueries.length && `(${programQueries.join(" OR ")})`,
+  ].filter(Boolean);
+
+  const filteredQuery = [baseQuery, ...clauses];
+
   // Get CDEC providers for the given zip code
   const cdecProviders: CdecProvider[] = await fetchCdecProviders(
-    `SELECT * WHERE zip = '${zip}'`
+    filteredQuery.join(" AND ")
   );
 
   if (!cdecProviders) {

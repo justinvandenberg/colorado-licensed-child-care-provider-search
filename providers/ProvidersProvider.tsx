@@ -8,14 +8,16 @@ import {
   useState,
 } from "react";
 
-import { Provider } from "@/types/Provider";
+import { Provider, ProviderFilters } from "@/types/Provider";
 import { fetchDbProviders } from "@/utilities/fetch";
 import { Keyboard } from "react-native";
 
 type ProviderContextType = {
+  applyProviderFilters: (providerFilters: ProviderFilters) => void;
   currentProvider: Provider | null;
   error: Error | null;
   loading: boolean;
+  providerFilters: ProviderFilters;
   providers: Provider[];
   resetProviders: () => void;
   setCurrentProvider: (provider: Provider | null) => void;
@@ -24,10 +26,26 @@ type ProviderContextType = {
   zip: string;
 };
 
+const defaultProviderFilters: ProviderFilters = {
+  only_favs: false,
+  licensed_infant_capacity: false,
+  licensed_toddler_capacity: false,
+  licensed_preschool_capacity: false,
+  licensed_school_age_capacity: false,
+  "provider_service_type.Child Care Center": false,
+  "provider_service_type.Preschool Program": false,
+  "provider_service_type.School-Age Child Care Center": false,
+  "provider_service_type.Large Family Child Care Home": false,
+  "provider_service_type.Neighborhood Youth Organization": false,
+  cccap_authorization_status: false,
+};
+
 const ProvidersContext = createContext<ProviderContextType>({
+  applyProviderFilters: () => {},
   currentProvider: null,
   error: null,
   loading: false,
+  providerFilters: defaultProviderFilters,
   providers: [],
   resetProviders: () => {},
   setCurrentProvider: () => {},
@@ -42,6 +60,9 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [error, setError] = useState<Error | null>(null);
   const [zip, setZip] = useState<string>("");
   const [currentProvider, setCurrentProvider] = useState<Provider | null>(null);
+  const [providerFilters, setProviderFilters] = useState<ProviderFilters>(
+    defaultProviderFilters
+  );
 
   const totalProviders = useMemo(() => {
     return providers.length;
@@ -61,7 +82,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
       try {
         setLoading(true);
         setError(null);
-        const dbProviders = await fetchDbProviders(zip);
+        const dbProviders = await fetchDbProviders(zip, providerFilters);
         setProviders(dbProviders || []);
       } catch (error) {
         console.warn("Could not retrieve entries from Firebase:", error);
@@ -72,7 +93,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
       }
     };
     fetchProviders();
-  }, [zip]);
+  }, [providerFilters, zip]);
 
   const resetProviders = useCallback(() => {
     setProviders([]);
@@ -82,9 +103,11 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   return (
     <ProvidersContext.Provider
       value={{
+        applyProviderFilters: setProviderFilters,
         currentProvider,
         error,
         loading,
+        providerFilters,
         providers,
         resetProviders,
         setCurrentProvider,

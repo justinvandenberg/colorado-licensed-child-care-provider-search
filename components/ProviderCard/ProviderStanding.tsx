@@ -4,6 +4,7 @@ import { Provider } from "@/types/Provider";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import TextIcon, { IconName } from "../ui/TextIcon";
 
 type ProviderStandingProps = {
@@ -17,7 +18,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
     let iconColor = theme.color.red[400];
     let title = "Not yet rated";
     let titleColor = theme.color.red[700];
-    // let bgColor = theme.color.red[100];
+    let bgColor = theme.color.red[100];
 
     switch (qualityRating) {
       case "1":
@@ -25,7 +26,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
         iconColor = theme.color.yellow[400];
         title = "Licensed";
         titleColor = theme.color.yellow[700];
-        // bgColor = theme.color.yellow[100];
+        bgColor = theme.color.yellow[100];
         break;
 
       case "2":
@@ -33,7 +34,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
         iconColor = theme.color.violet[400];
         title = "Good standing";
         titleColor = theme.color.violet[700];
-        // bgColor = theme.color.violet[100];
+        bgColor = theme.color.violet[100];
         break;
 
       case "3":
@@ -43,7 +44,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
         iconColor = theme.color.green[400];
         title = "High-quality";
         titleColor = theme.color.green[700];
-        // bgColor = theme.color.green[100];
+        bgColor = theme.color.green[100];
         break;
     }
     return {
@@ -51,6 +52,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
       iconColor,
       title,
       titleColor,
+      style: [styles.root, { backgroundColor: bgColor }],
     };
   }, [
     qualityRating,
@@ -62,5 +64,13 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
 
   return <TextIcon {...props} />;
 };
+
+const styles = createThemedStyleSheet((theme) => ({
+  root: {
+    borderRadius: 12,
+    marginBottom: 6,
+    paddingHorizontal: theme.spacing[3],
+  },
+}));
 
 export default ProviderStanding;
