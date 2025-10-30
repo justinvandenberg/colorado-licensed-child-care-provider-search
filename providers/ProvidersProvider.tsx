@@ -10,21 +10,8 @@ import {
 
 import { Provider, ProviderFilters } from "@/types/Provider";
 import { fetchDbProviders } from "@/utilities/fetch";
+import { useQuery } from "@tanstack/react-query";
 import { Keyboard } from "react-native";
-
-type ProviderContextType = {
-  applyProviderFilters: (providerFilters: ProviderFilters) => void;
-  currentProvider: Provider | null;
-  error: Error | null;
-  loading: boolean;
-  providerFilters: ProviderFilters;
-  providers: Provider[];
-  resetProviders: () => void;
-  setCurrentProvider: (provider: Provider | null) => void;
-  totalProviders: number;
-  updateZip: (zip: string) => void;
-  zip: string;
-};
 
 const defaultProviderFilters: ProviderFilters = {
   only_favs: false,
@@ -40,11 +27,29 @@ const defaultProviderFilters: ProviderFilters = {
   cccap_authorization_status: false,
 };
 
+type ProviderContextType = {
+  applyProviderFilters: (providerFilters: ProviderFilters) => void;
+  currentProvider: Provider | null;
+  error: Error | null;
+  isFetching: boolean;
+  isFetched: boolean;
+  isLoading: boolean;
+  providerFilters: ProviderFilters;
+  providers: Provider[];
+  resetProviders: () => void;
+  setCurrentProvider: (provider: Provider | null) => void;
+  totalProviders: number;
+  updateZip: (zip: string) => void;
+  zip: string;
+};
+
 const ProvidersContext = createContext<ProviderContextType>({
   applyProviderFilters: () => {},
   currentProvider: null,
   error: null,
-  loading: false,
+  isFetched: false,
+  isFetching: false,
+  isLoading: false,
   providerFilters: defaultProviderFilters,
   providers: [],
   resetProviders: () => {},
@@ -55,48 +60,30 @@ const ProvidersContext = createContext<ProviderContextType>({
 });
 
 const ProvidersProvider = ({ children }: PropsWithChildren) => {
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [zip, setZip] = useState<string>("");
   const [currentProvider, setCurrentProvider] = useState<Provider | null>(null);
   const [providerFilters, setProviderFilters] = useState<ProviderFilters>(
     defaultProviderFilters
   );
+  const [zip, setZip] = useState<string>("");
 
-  const totalProviders = useMemo(() => {
-    return providers.length;
-  }, [providers]);
+  const { data, error, isLoading, isFetching, isFetched } = useQuery({
+    queryKey: ["fetchDbProviders", zip, providerFilters],
+    queryFn: () => fetchDbProviders(zip, providerFilters),
+    enabled: () => zip.length === 5, // Only fire when the zip is valid
+  });
+
+  const totalProviders = useMemo(() => data?.length ?? 0, [data]);
 
   const updateZip = useCallback((zip: string) => {
     setZip(zip);
   }, []);
 
   useEffect(() => {
-    if (!zip) {
-      return;
-    }
-
-    // Fetch the providers with matching provider_ids from the db
-    const fetchProviders = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const dbProviders = await fetchDbProviders(zip, providerFilters);
-        setProviders(dbProviders || []);
-      } catch (error) {
-        console.warn("Could not retrieve entries from Firebase:", error);
-        setError(error as Error);
-      } finally {
-        setLoading(false);
-        Keyboard.dismiss();
-      }
-    };
-    fetchProviders();
-  }, [providerFilters, zip]);
+    console.log("fetc", zip);
+    Keyboard.dismiss();
+  }, [isFetched]);
 
   const resetProviders = useCallback(() => {
-    setProviders([]);
     setZip("");
   }, []);
 
@@ -106,9 +93,11 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
         applyProviderFilters: setProviderFilters,
         currentProvider,
         error,
-        loading,
+        isLoading,
+        isFetching,
+        isFetched,
         providerFilters,
-        providers,
+        providers: data ?? [],
         resetProviders,
         setCurrentProvider,
         totalProviders,

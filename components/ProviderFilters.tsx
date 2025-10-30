@@ -21,7 +21,7 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
   const { providerFilters, applyProviderFilters } = useProviders();
   const [_providerFilters, _setProviderFilters] =
     useState<ProviderFiltersType>(providerFilters);
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const updateProviderFilter = useCallback(
     (key: keyof ProviderFiltersType, value: boolean) => {
