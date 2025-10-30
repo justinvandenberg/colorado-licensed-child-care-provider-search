@@ -3,9 +3,25 @@ import { Tabs } from "expo-router";
 import React from "react";
 
 import { useTheme } from "@/providers/ThemeProvider";
+import { StyleProp, TextStyle, ViewStyle } from "react-native";
 
 export default function TabLayout() {
   const theme = useTheme();
+  const tabBarItemStyle: StyleProp<ViewStyle> = {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+    marginHorizontal: 2,
+    maxWidth: theme.spacing[18],
+    minHeight: theme.spacing[18],
+    paddingTop: 6,
+  };
+  const tabBarLabelStyle: StyleProp<TextStyle> = {
+    fontFamily: "DMSans_600SemiBold",
+    fontSize: 12,
+    marginTop: theme.spacing[1],
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -34,20 +50,10 @@ export default function TabLayout() {
           shadowRadius: 5.62,
           elevation: 8,
         },
-        tabBarItemStyle: {
-          alignItems: "center",
-          flex: 1,
-          justifyContent: "center",
-          marginHorizontal: 2,
-          maxWidth: theme.spacing[18],
-          minHeight: theme.spacing[18],
-          paddingTop: 6,
-        },
+        tabBarItemStyle,
         tabBarLabelStyle: {
-          color: theme.color.violet[400],
-          fontFamily: "DMSans_600SemiBold",
-          fontSize: 12,
-          marginTop: theme.spacing[1],
+          ...tabBarLabelStyle,
+          color: theme.color.violet[700],
         },
       }}
     >
@@ -66,7 +72,7 @@ export default function TabLayout() {
           title: "Visits",
           tabBarIcon: ({ color }) => (
             <Octicons
-              color={theme.color.violet[400]}
+              color={theme.color.violet[700]}
               name="checklist"
               size={24}
             />
@@ -79,11 +85,16 @@ export default function TabLayout() {
           title: "Dev",
           tabBarIcon: ({ color }) => (
             <Octicons
-              color={theme.color.violet[400]}
+              color={theme.color.green[400]}
               name="command-palette"
               size={24}
             />
           ),
+          tabBarItemStyle,
+          tabBarLabelStyle: {
+            ...tabBarLabelStyle,
+            color: theme.color.green[700],
+          },
         }}
       />
     </Tabs>

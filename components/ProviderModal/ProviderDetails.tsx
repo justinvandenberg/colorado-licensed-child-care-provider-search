@@ -45,11 +45,10 @@ const ProviderDetails: FC<ProviderDetailsProps> = ({
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
-    paddingLeft: theme.spacing[2],
-    paddingRight: theme.spacing[2],
+    paddingHorizontal: theme.spacing[2],
   },
   list: {
-    gap: theme.spacing[1],
+    gap: theme.spacing[2],
   },
   listItem: {
     flexDirection: "row",

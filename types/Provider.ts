@@ -43,3 +43,20 @@ export type Provider = CdecProvider & {
   static_map_uri: string;
   updated_at: string;
 };
+
+export interface ProviderFilters {
+  only_favs: boolean;
+  // Capacity
+  licensed_infant_capacity: boolean;
+  licensed_toddler_capacity: boolean;
+  licensed_preschool_capacity: boolean;
+  licensed_school_age_capacity: boolean;
+  // Setting
+  "provider_service_type.School-Age Child Care Center": boolean;
+  "provider_service_type.Preschool Program": boolean;
+  "provider_service_type.Large Family Child Care Home": boolean;
+  "provider_service_type.Child Care Center": boolean;
+  "provider_service_type.Neighborhood Youth Organization": boolean;
+  // Programs
+  cccap_authorization_status: boolean;
+}

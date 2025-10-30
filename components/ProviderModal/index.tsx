@@ -7,7 +7,6 @@ import Modal from "../ui/Modal";
 import StaticMap from "../ui/StaticMap";
 import Text from "../ui/Text";
 
-import { useEffect } from "react";
 import ProviderCapacities from "../ProviderCard/ProviderCapacities";
 import ProviderContact from "../ProviderCard/ProviderContact";
 import ProviderQualityRating from "../ProviderCard/ProviderStanding";
@@ -15,10 +14,6 @@ import ProviderDetails from "./ProviderDetails";
 
 const ProviderModal = () => {
   const { currentProvider, setCurrentProvider } = useProviders();
-
-  useEffect(() => {
-    console.log(currentProvider);
-  }, [currentProvider]);
 
   return (
     <Modal visible={!!currentProvider} onClose={() => setCurrentProvider(null)}>
@@ -108,18 +103,16 @@ const ProviderModal = () => {
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
-    paddingTop: theme.spacing[8],
+    paddingTop: theme.spacing[4],
     paddingBottom: theme.spacing[12],
-    paddingLeft: theme.spacing[2],
-    paddingRight: theme.spacing[2],
+    paddingHorizontal: theme.spacing[2],
   },
   modalContent: {
     gap: theme.spacing[4],
   },
   titleWrapper: {
     gap: theme.spacing[2],
-    paddingLeft: theme.spacing[2],
-    paddingRight: theme.spacing[2],
+    paddingHorizontal: theme.spacing[2],
   },
 }));
 
