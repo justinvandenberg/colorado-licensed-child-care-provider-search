@@ -2,17 +2,13 @@ import { View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
-import { ProvidersProvider } from "@/providers/ProvidersProvider";
-
 import ProviderCardList from "@/components/ProviderCardList";
 
 function HomeScreen() {
   return (
-    <ProvidersProvider>
-      <View style={styles.root}>
-        <ProviderCardList />
-      </View>
-    </ProvidersProvider>
+    <View style={styles.root}>
+      <ProviderCardList />
+    </View>
   );
 }
 
