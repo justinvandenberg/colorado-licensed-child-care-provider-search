@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { Directory, Paths } from "expo-file-system";
-import { Image } from "expo-image";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { ScrollView, View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
-import { DIR_NAME, refetchProviders } from "@/utilities/fetch";
+import { DIR_NAME, refetchFirestoreDbProviders } from "@/utilities/firestoreDb";
+import { dropLocalDbUserTable } from "@/utilities/localDb";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -15,64 +14,33 @@ import Text from "@/components/ui/Text";
 export default function DevScreen() {
   const theme = useTheme();
 
-  const {
-    isSuccess: refetchAndUpdateProvidersIsSuccess,
-    isError: refetchAndUpdateProvidersIsError,
-    refetch: refetchAndUpdateProviders,
-  } = useQuery({
-    queryKey: ["refetchAndUpdateProviders"],
-    queryFn: () => refetchProviders(),
-    enabled: false,
-  });
+  // const { refetch: updateProviders } = useQuery({
+  //   queryKey: ["updateProviders"],
+  //   queryFn: () => refetchFirestoreDbProviders(),
+  //   enabled: false,
+  // });
 
-  const {
-    isSuccess: refetchAndOverwriteProvidersIsSuccess,
-    isError: refetchAndOverwriteProvidersIsError,
-    refetch: refetchAndOverwriteProviders,
-  } = useQuery({
-    queryKey: ["refetchAndOverwriteProviders"],
-    queryFn: () => refetchProviders(true),
-    enabled: false,
-  });
+  // const { refetch: overwriteProviders } = useQuery({
+  //   queryKey: ["overwriteProviders"],
+  //   queryFn: () => refetchFirestoreDbProviders(true),
+  //   enabled: false,
+  // });
 
-  const dir = useMemo(() => new Directory(Paths.cache, DIR_NAME), []);
+  // const { refetch: deleteUserTable } = useQuery({
+  //   queryKey: ["deleteUserTable"],
+  //   queryFn: dropLocalDbUserTable,
+  //   enabled: false,
+  // });
 
-  // Clear the local image cache
-  const clearImageCache = useCallback(() => {
-    Image.clearDiskCache();
-    console.log("✅ Local cache cleared");
-  }, []);
+  const dir = useMemo(() => new Directory(Paths.document, DIR_NAME), []);
 
   // Delete image from the local file system
   const deleteLocalImages = useCallback(() => {
     if (dir.exists) {
       dir.delete();
     }
-    console.log(`✅ ${dir.name} deleted`);
+    console.log(`✅ Directory '${dir.name}' deleted`);
   }, [dir]);
-
-  useEffect(() => {
-    if (
-      !refetchAndUpdateProvidersIsSuccess &&
-      !refetchAndUpdateProvidersIsSuccess
-    ) {
-      return;
-    }
-    console.log("✅ Providers updated");
-  }, [
-    refetchAndUpdateProvidersIsSuccess,
-    refetchAndOverwriteProvidersIsSuccess,
-  ]);
-
-  useEffect(() => {
-    if (
-      !refetchAndUpdateProvidersIsError &&
-      !refetchAndOverwriteProvidersIsError
-    ) {
-      return;
-    }
-    console.log("❌ Providers could not be updated");
-  }, [refetchAndUpdateProvidersIsError, refetchAndOverwriteProvidersIsError]);
 
   return (
     <ScrollView style={styles.root}>
@@ -81,22 +49,15 @@ export default function DevScreen() {
           Dev
         </Text>
         <Button
-          onPress={() => refetchAndUpdateProviders()}
+          onPress={() => refetchFirestoreDbProviders()}
           title="Fetch providers (CDEC)"
           titleColor={theme.color.green[400]}
           titleWeight="mono"
           style={styles.button}
         />
         <Button
-          onPress={() => refetchAndOverwriteProviders()}
+          onPress={() => refetchFirestoreDbProviders(true)}
           title="Fetch providers (CDEC/Google)"
-          titleColor={theme.color.green[400]}
-          titleWeight="mono"
-          style={styles.button}
-        />
-        <Button
-          onPress={clearImageCache}
-          title="Clear image cache"
           titleColor={theme.color.green[400]}
           titleWeight="mono"
           style={styles.button}
@@ -104,6 +65,13 @@ export default function DevScreen() {
         <Button
           onPress={deleteLocalImages}
           title="Delete local images"
+          titleColor={theme.color.green[400]}
+          titleWeight="mono"
+          style={styles.button}
+        />
+        <Button
+          onPress={dropLocalDbUserTable}
+          title="Drop user DB table"
           titleColor={theme.color.green[400]}
           titleWeight="mono"
           style={styles.button}

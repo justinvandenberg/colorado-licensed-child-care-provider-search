@@ -37,7 +37,6 @@ const styles = createThemedStyleSheet((theme) => ({
     right: 0,
     backgroundColor: theme.color.violet[400],
     mixBlendMode: "overlay",
-    // opacity: 0,
   },
 }));
 

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import {
   createContext,
   PropsWithChildren,
@@ -7,14 +8,14 @@ import {
   useMemo,
   useState,
 } from "react";
-
-import { Provider, ProviderFilters } from "@/types/Provider";
-import { fetchDbProviders } from "@/utilities/fetch";
-import { useQuery } from "@tanstack/react-query";
 import { Keyboard } from "react-native";
 
+import { Provider, ProviderFilters } from "@/types/Provider";
+
+import { fetchFirestoreDbProviders } from "@/utilities/firestoreDb";
+
 const defaultProviderFilters: ProviderFilters = {
-  only_favs: false,
+  only_favorites: false,
   licensed_infant_capacity: false,
   licensed_toddler_capacity: false,
   licensed_preschool_capacity: false,
@@ -27,7 +28,7 @@ const defaultProviderFilters: ProviderFilters = {
   cccap_authorization_status: false,
 };
 
-type ProviderContextType = {
+type ProvidersContextType = {
   applyProviderFilters: (providerFilters: ProviderFilters) => void;
   currentProvider: Provider | null;
   error: Error | null;
@@ -43,7 +44,7 @@ type ProviderContextType = {
   zip: string;
 };
 
-const ProvidersContext = createContext<ProviderContextType>({
+const ProvidersContext = createContext<ProvidersContextType>({
   applyProviderFilters: () => {},
   currentProvider: null,
   error: null,
@@ -67,8 +68,8 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [zip, setZip] = useState<string>("");
 
   const { data, error, isLoading, isFetching, isFetched } = useQuery({
-    queryKey: ["fetchDbProviders", zip, providerFilters],
-    queryFn: () => fetchDbProviders(zip, providerFilters),
+    queryKey: ["fetchFirestoreDbProviders", zip, providerFilters],
+    queryFn: () => fetchFirestoreDbProviders(zip, providerFilters),
     enabled: () => zip.length === 5, // Only fire when the zip is valid
   });
 
@@ -78,14 +79,13 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
     setZip(zip);
   }, []);
 
-  useEffect(() => {
-    console.log("fetc", zip);
-    Keyboard.dismiss();
-  }, [isFetched]);
-
   const resetProviders = useCallback(() => {
     setZip("");
   }, []);
+
+  useEffect(() => {
+    Keyboard.dismiss();
+  }, [isFetched]);
 
   return (
     <ProvidersContext.Provider

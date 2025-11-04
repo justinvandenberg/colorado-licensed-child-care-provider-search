@@ -5,6 +5,9 @@ import { Provider } from "@/types/Provider";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
+import { useTheme } from "@/providers/ThemeProvider";
+import { useUser } from "@/providers/UserProvider";
+
 import Button from "../ui/Button";
 import StaticMap from "../ui/StaticMap";
 import Text from "../ui/Text";
@@ -35,9 +38,29 @@ const ProviderCard: FC<ProviderCardProps> = ({
   website,
   onProviderDetails,
 }) => {
+  const theme = useTheme();
+  const { updateUserFavorites, user } = useUser();
+
   return (
     <View style={styles.root}>
-      <StaticMap imageUri={static_map_uri} />
+      <View style={styles.staticMapWrapper}>
+        <StaticMap imageUri={static_map_uri} />
+        <Button
+          iconOnly={true}
+          iconColor={theme.color.red[400]}
+          iconName={
+            user?.favorites.includes(provider_id) ? "heart-fill" : "heart"
+          }
+          title="Add to favorites"
+          onPress={() => {
+            if (!user) {
+              return;
+            }
+            updateUserFavorites(String(provider_id), user);
+          }}
+          style={styles.favoriteButton}
+        />
+      </View>
       <View style={styles.titleWrapper}>
         <ProviderStanding qualityRating={quality_rating} />
         <Text fontSize={20} fontWeight={600}>
@@ -85,6 +108,15 @@ const styles = createThemedStyleSheet((theme) => ({
     // shadowOpacity: 0.17,
     // shadowRadius: 3.05,
     // elevation: 4,
+  },
+  staticMapWrapper: {
+    position: "relative",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: theme.spacing[2],
+    left: theme.spacing[2],
+    backgroundColor: theme.color.red[100],
   },
   titleWrapper: {
     gap: theme.spacing[2],

@@ -42,10 +42,11 @@ export type Provider = CdecProvider & {
   formatted_phone_number?: string;
   static_map_uri: string;
   updated_at: string;
+  is_favorite?: boolean;
 };
 
 export interface ProviderFilters {
-  only_favs: boolean;
+  only_favorites: boolean;
   // Capacity
   licensed_infant_capacity: boolean;
   licensed_toddler_capacity: boolean;
