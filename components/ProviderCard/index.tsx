@@ -17,7 +17,7 @@ import ProviderContact from "./ProviderContact";
 import ProviderStanding from "./ProviderStanding";
 
 type ProviderCardProps = {
-  onProviderDetails: () => void;
+  onClick: () => void;
 } & Provider;
 
 const ProviderCard: FC<ProviderCardProps> = ({
@@ -36,10 +36,10 @@ const ProviderCard: FC<ProviderCardProps> = ({
   formatted_phone_number,
   formatted_address,
   website,
-  onProviderDetails,
+  onClick,
 }) => {
   const theme = useTheme();
-  const { updateUserFavorites, user } = useUser();
+  const { updateUserFavorites, currentUser } = useUser();
 
   return (
     <View style={styles.root}>
@@ -49,14 +49,16 @@ const ProviderCard: FC<ProviderCardProps> = ({
           iconOnly={true}
           iconColor={theme.color.red[400]}
           iconName={
-            user?.favorites.includes(provider_id) ? "heart-fill" : "heart"
+            currentUser?.favorites.includes(provider_id)
+              ? "heart-fill"
+              : "heart"
           }
           title="Add to favorites"
           onPress={() => {
-            if (!user) {
+            if (!currentUser) {
               return;
             }
-            updateUserFavorites(String(provider_id), user);
+            updateUserFavorites(String(provider_id), currentUser);
           }}
           style={styles.favoriteButton}
         />
@@ -81,7 +83,7 @@ const ProviderCard: FC<ProviderCardProps> = ({
       <Button
         direction="reverse"
         iconName="arrow-right"
-        onPress={onProviderDetails}
+        onPress={onClick}
         title="See more"
         variant="inverted"
       />

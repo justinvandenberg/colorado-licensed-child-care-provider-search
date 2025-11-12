@@ -1,8 +1,9 @@
-import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import Octicons from "@expo/vector-icons/Octicons";
 import { ColorValue, StyleProp, View, ViewStyle } from "react-native";
 
 import { useTheme } from "@/providers/ThemeProvider";
+
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import Inline from "./Inline";
 import Text, { TextProps } from "./Text";
@@ -54,7 +55,7 @@ const TextIcon = ({
           color={titleColor ? titleColor : theme.color.violet[950]}
           fontWeight={titleWeight}
           fontSize={titleSize}
-          style={styles.title}
+          style={[styles.title, { marginTop: iconSize * 0.15 }]}
         >
           {title}
         </Text>

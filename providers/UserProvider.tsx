@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-import { User } from "@/types/User";
+import { User, Visit } from "@/types/User";
 
 import {
   fetchLocalDbUser,
@@ -16,50 +16,57 @@ import {
 } from "@/utilities/localDb";
 
 interface UserContextType {
+  currentVisit: Visit | null;
   error: Error | null;
   isFetching: boolean;
   isFetched: boolean;
   isLoading: boolean;
+  setCurrentVisit: (visit: Visit | null) => void;
   updateUserFavorites: (id: string, user: User) => void;
-  user?: User;
+  currentUser?: User;
 }
 
 const UserContext = createContext<UserContextType>({
+  currentVisit: null,
   error: null,
   isFetched: false,
   isFetching: false,
   isLoading: false,
+  setCurrentVisit: () => {},
   updateUserFavorites: () => {},
-  user: undefined,
+  currentUser: undefined,
 });
 
 const UserProvider = ({ children }: PropsWithChildren) => {
-  const [user, setUser] = useState<User | undefined>();
+  const [currentUser, setCurrentUser] = useState<User | undefined>();
+  const [currentVisit, setCurrentVisit] = useState<Visit | null>(null);
 
   const { data, error, isLoading, isFetching, isFetched } = useQuery({
     queryKey: ["fetchLocalDbUser"],
     queryFn: fetchLocalDbUser,
-    enabled: !user,
+    enabled: !currentUser,
   });
 
   const updateUserFavorites = useCallback(async (id: string, user: User) => {
     const updatedUser = await updateLocalDbUserFavorites(id, user);
-    setUser(updatedUser);
+    setCurrentUser(updatedUser);
   }, []);
 
   useEffect(() => {
-    setUser(data);
+    setCurrentUser(data);
   }, [data]);
 
   return (
     <UserContext.Provider
       value={{
+        currentUser,
+        currentVisit,
         error,
         isLoading,
         isFetching,
         isFetched,
+        setCurrentVisit,
         updateUserFavorites,
-        user,
       }}
     >
       {children}

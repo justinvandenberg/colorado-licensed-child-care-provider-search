@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from "react";
 import { DimensionValue, StyleProp, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -9,7 +10,6 @@ import Animated, {
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { useTheme } from "@/providers/ThemeProvider";
-import { useEffect, useMemo } from "react";
 
 interface SkeletonProps {
   radii?: number;

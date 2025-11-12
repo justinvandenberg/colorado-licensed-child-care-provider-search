@@ -40,13 +40,13 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
           <TouchableOpacity
             onPress={() =>
               updateProviderFilter(
-                "only_favs",
-                !_providerFilters?.["only_favs"]
+                "only_favorites",
+                !_providerFilters?.["only_favorites"]
               )
             }
             style={styles.heartCheckbox}
           >
-            {!!_providerFilters?.["only_favs"] ? (
+            {!!_providerFilters?.["only_favorites"] ? (
               <Octicons
                 color={theme.color.red[400]}
                 name="heart-fill"

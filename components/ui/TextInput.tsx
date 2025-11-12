@@ -58,6 +58,7 @@ const TextInput: FC<TextInputProps> = ({
         )}
         <RnTextInput
           {...props}
+          aria-label={!showLabel ? label : undefined}
           editable={!disabled}
           onChangeText={onChangeText}
           style={[styles.textInput, textInputStyle]}

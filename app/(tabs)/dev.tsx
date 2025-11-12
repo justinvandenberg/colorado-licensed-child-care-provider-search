@@ -13,25 +13,6 @@ import Text from "@/components/ui/Text";
 
 export default function DevScreen() {
   const theme = useTheme();
-
-  // const { refetch: updateProviders } = useQuery({
-  //   queryKey: ["updateProviders"],
-  //   queryFn: () => refetchFirestoreDbProviders(),
-  //   enabled: false,
-  // });
-
-  // const { refetch: overwriteProviders } = useQuery({
-  //   queryKey: ["overwriteProviders"],
-  //   queryFn: () => refetchFirestoreDbProviders(true),
-  //   enabled: false,
-  // });
-
-  // const { refetch: deleteUserTable } = useQuery({
-  //   queryKey: ["deleteUserTable"],
-  //   queryFn: dropLocalDbUserTable,
-  //   enabled: false,
-  // });
-
   const dir = useMemo(() => new Directory(Paths.document, DIR_NAME), []);
 
   // Delete image from the local file system

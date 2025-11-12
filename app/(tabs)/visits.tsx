@@ -1,22 +1,52 @@
 import { useEffect } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
-import Text from "@/components/ui/Text";
+import Button from "@/components/ui/Button";
+import VisitCard from "@/components/VisitCard";
+import VisitModal from "@/components/VisitModal";
 import { useUser } from "@/providers/UserProvider";
 
 export default function VisitsScreen() {
-  const { user } = useUser();
+  const { currentUser, setCurrentVisit, currentVisit } = useUser();
 
   useEffect(() => {
-    console.log(user);
-  }, [user]);
+    // console.log(user);
+  }, [currentUser]);
 
   return (
-    <ScrollView style={styles.root}>
-      <Text>Visit2rs</Text>
-      {/* <Button onPress={() => toggleFavorite(1676722, true)} title="1676722" />
-      <Button onPress={() => toggleFavorite(1724032, true)} title="1724032" /> */}
-    </ScrollView>
+    <View style={styles.root}>
+      <FlatList
+        data={currentUser?.visits}
+        // ListHeaderComponent={ProviderListHeader}
+        // ListEmptyComponent={() => {
+        //   return isFetching ?? <ActivityIndicator />;
+        // }}
+        renderItem={({ item }) => (
+          <VisitCard {...item} onClick={() => setCurrentVisit(item)} />
+        )}
+        keyExtractor={(item) => item.id}
+        // contentContainerStyle={{
+        //   gap: theme.spacing[2],
+        //   paddingBottom: 104,
+        // }}
+      />
+      <Button
+        onPress={() => {
+          const id = generateId();
+          setCurrentVisit({ id, title: "" });
+        }}
+        iconName="plus"
+        title="Add a visit"
+      />
+      {currentVisit && currentUser && (
+        <VisitModal
+          onClose={() => setCurrentVisit(null)}
+          user={currentUser}
+          visit={currentVisit}
+          visible={!!currentVisit}
+        />
+      )}
+    </View>
   );
 }
 
@@ -26,3 +56,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 });
+
+const generateId = (length: number = 14) => {
+  return Math.random()
+    .toString(36)
+    .substring(2, length + 2);
+};

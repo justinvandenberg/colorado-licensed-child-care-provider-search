@@ -79,6 +79,7 @@ const styles = createThemedStyleSheet((theme) => ({
     borderColor: "blue",
   },
   label: {
+    flexShrink: 1,
     marginTop: 6,
   },
 }));

@@ -1,15 +1,11 @@
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import { FC } from "react";
-import {
-  Modal as RnModal,
-  ModalProps as RnModalProps,
-  ScrollView,
-} from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import { Modal as RnModal, ModalProps as RnModalProps } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 import Button from "./Button";
 
-type ModalProps = {
+export type ModalProps = {
   onClose?: () => void;
 } & RnModalProps;
 
@@ -22,27 +18,31 @@ const Modal: FC<ModalProps> = ({
 }) => {
   return (
     <RnModal
-      animationType="slide"
+      animationType="none"
       transparent={true}
       visible={visible}
       {...props}
     >
       {visible && (
-        <Animated.View
-          entering={FadeIn.duration(200).delay(400)}
-          style={styles.overlay}
-        />
+        <Animated.View entering={FadeIn.duration(200)} style={styles.overlay} />
       )}
-      <Button
-        iconName="x"
-        iconOnly={true}
-        onPress={onClose}
-        size="compact"
-        style={styles.button}
-        title="Close"
-        variant="inverted"
-      />
-      <ScrollView style={[styles.root, style]}>{children}</ScrollView>
+      <Animated.ScrollView
+        entering={FadeInDown.duration(300).delay(100)}
+        style={[styles.root, style]}
+      >
+        <>
+          <Button
+            iconName="x"
+            iconOnly={true}
+            onPress={onClose}
+            size="compact"
+            style={styles.button}
+            title="Close"
+            variant="inverted"
+          />
+          {children}
+        </>
+      </Animated.ScrollView>
     </RnModal>
   );
 };
@@ -82,7 +82,7 @@ const styles = createThemedStyleSheet((theme) => ({
   button: {
     position: "absolute",
     right: theme.spacing[3],
-    top: theme.spacing[23],
+    top: theme.spacing[3],
     zIndex: 1,
   },
 }));
