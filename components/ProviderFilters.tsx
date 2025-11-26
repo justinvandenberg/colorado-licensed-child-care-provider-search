@@ -1,31 +1,33 @@
-import Octicons from "@expo/vector-icons/Octicons";
+import Feather from "@expo/vector-icons/Feather";
 import { FC, useCallback, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
+import { Filters as FiltersType } from "@/types/Provider";
+
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
+import { useProviders } from "@/providers/ProvidersProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 
-import { useProviders } from "@/providers/ProvidersProvider";
-import { ProviderFilters as ProviderFiltersType } from "@/types/Provider";
 import Button from "./ui/Button";
 import Checkbox from "./ui/Checkbox";
 import Text from "./ui/Text";
 
-interface ProviderFiltersProps {
-  disabled?: boolean;
-}
-
-const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
+const ProviderFilters: FC = () => {
   const theme = useTheme();
-  const { providerFilters, applyProviderFilters } = useProviders();
-  const [_providerFilters, _setProviderFilters] =
-    useState<ProviderFiltersType>(providerFilters);
+  const { filters, applyFilters } = useProviders();
+
+  const [pendingFilters, setPendingFilters] = useState<FiltersType>(filters);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const updateProviderFilter = useCallback(
-    (key: keyof ProviderFiltersType, value: boolean) => {
-      _setProviderFilters((providerFilters) => ({
+  /**
+   * Update the pending filters
+   * @param key {keyof FiltersType} The key of the filter
+   * @param value {boolean} The value of the filter
+   */
+  const updatePendingFilters = useCallback(
+    (key: keyof FiltersType, value: boolean) => {
+      setPendingFilters((providerFilters) => ({
         ...providerFilters,
         [key]: value,
       }));
@@ -39,21 +41,21 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
         <View style={styles.checkboxesWrapper}>
           <TouchableOpacity
             onPress={() =>
-              updateProviderFilter(
-                "only_favs",
-                !_providerFilters?.["only_favs"]
+              updatePendingFilters(
+                "only_favorites",
+                !pendingFilters?.["only_favorites"]
               )
             }
             style={styles.heartCheckbox}
           >
-            {!!_providerFilters?.["only_favs"] ? (
-              <Octicons
+            {!!pendingFilters?.["only_favorites"] ? (
+              <Feather
                 color={theme.color.red[400]}
-                name="heart-fill"
+                name="heart" // TODO: Need a filled version
                 size={24}
               />
             ) : (
-              <Octicons color={theme.color.red[400]} name="heart" size={24} />
+              <Feather color={theme.color.red[400]} name="heart" size={24} />
             )}
             <Text fontWeight={500} style={styles.heartCheckboxLabel}>
               Only favorites?
@@ -61,42 +63,42 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
           </TouchableOpacity>
           <View style={styles.checkboxWrapper}>
             <Text
+              color={theme.color.violet[400]}
               fontSize={18}
               fontWeight={600}
-              color={theme.color.violet[400]}
             >
               Capacity
             </Text>
             <Checkbox
+              direction="reverse"
+              initialIsChecked={!!pendingFilters?.licensed_infant_capacity}
               label="Infant"
-              direction="reverse"
-              isChecked={!!_providerFilters?.licensed_infant_capacity}
               onChange={(value) =>
-                updateProviderFilter("licensed_infant_capacity", value)
+                updatePendingFilters("licensed_infant_capacity", value)
               }
             />
             <Checkbox
+              direction="reverse"
+              initialIsChecked={!!pendingFilters?.licensed_toddler_capacity}
               label="Toddler"
-              direction="reverse"
-              isChecked={!!_providerFilters?.licensed_toddler_capacity}
               onChange={(value) =>
-                updateProviderFilter("licensed_toddler_capacity", value)
+                updatePendingFilters("licensed_toddler_capacity", value)
               }
             />
             <Checkbox
+              direction="reverse"
+              initialIsChecked={!!pendingFilters?.licensed_preschool_capacity}
               label="PreK"
-              direction="reverse"
-              isChecked={!!_providerFilters?.licensed_preschool_capacity}
               onChange={(value) =>
-                updateProviderFilter("licensed_preschool_capacity", value)
+                updatePendingFilters("licensed_preschool_capacity", value)
               }
             />
             <Checkbox
-              label="K-12"
               direction="reverse"
-              isChecked={!!_providerFilters?.licensed_school_age_capacity}
+              initialIsChecked={!!pendingFilters?.licensed_school_age_capacity}
+              label="K-12"
               onChange={(value) =>
-                updateProviderFilter("licensed_school_age_capacity", value)
+                updatePendingFilters("licensed_school_age_capacity", value)
               }
             />
           </View>
@@ -111,11 +113,11 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
             <Checkbox
               label="Child care center"
               direction="reverse"
-              isChecked={
-                !!_providerFilters?.["provider_service_type.Child Care Center"]
+              initialIsChecked={
+                !!pendingFilters?.["provider_service_type.Child Care Center"]
               }
               onChange={(value) =>
-                updateProviderFilter(
+                updatePendingFilters(
                   "provider_service_type.Child Care Center",
                   value
                 )
@@ -124,11 +126,11 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
             <Checkbox
               label="Preschool program"
               direction="reverse"
-              isChecked={
-                !!_providerFilters?.["provider_service_type.Preschool Program"]
+              initialIsChecked={
+                !!pendingFilters?.["provider_service_type.Preschool Program"]
               }
               onChange={(value) =>
-                updateProviderFilter(
+                updatePendingFilters(
                   "provider_service_type.Preschool Program",
                   value
                 )
@@ -137,13 +139,13 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
             <Checkbox
               label="School age program"
               direction="reverse"
-              isChecked={
-                !!_providerFilters?.[
+              initialIsChecked={
+                !!pendingFilters?.[
                   "provider_service_type.School-Age Child Care Center"
                 ]
               }
               onChange={(value) =>
-                updateProviderFilter(
+                updatePendingFilters(
                   "provider_service_type.School-Age Child Care Center",
                   value
                 )
@@ -152,13 +154,13 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
             <Checkbox
               label="Family child care"
               direction="reverse"
-              isChecked={
-                !!_providerFilters?.[
+              initialIsChecked={
+                !!pendingFilters?.[
                   "provider_service_type.Large Family Child Care Home"
                 ]
               }
               onChange={(value) =>
-                updateProviderFilter(
+                updatePendingFilters(
                   "provider_service_type.Large Family Child Care Home",
                   value
                 )
@@ -167,13 +169,13 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
             <Checkbox
               label="Neighborhood youth organization"
               direction="reverse"
-              isChecked={
-                !!_providerFilters?.[
+              initialIsChecked={
+                !!pendingFilters?.[
                   "provider_service_type.Neighborhood Youth Organization"
                 ]
               }
               onChange={(value) =>
-                updateProviderFilter(
+                updatePendingFilters(
                   "provider_service_type.Neighborhood Youth Organization",
                   value
                 )
@@ -192,19 +194,18 @@ const ProviderFilters: FC<ProviderFiltersProps> = ({ disabled = false }) => {
             <Checkbox
               label="CCCAP"
               direction="reverse"
-              isChecked={!!_providerFilters?.cccap_authorization_status}
+              initialIsChecked={!!pendingFilters?.cccap_authorization_status}
               onChange={(value) =>
-                updateProviderFilter("cccap_authorization_status", value)
+                updatePendingFilters("cccap_authorization_status", value)
               }
             />
           </View>
-          {JSON.stringify(providerFilters) !==
-            JSON.stringify(_providerFilters) && (
+          {JSON.stringify(filters) !== JSON.stringify(pendingFilters) && (
             <Button
               direction="reverse"
               iconName="filter"
               onPress={() => {
-                applyProviderFilters(_providerFilters);
+                applyFilters(pendingFilters);
                 setIsOpen(false);
               }}
               title="Apply filters"

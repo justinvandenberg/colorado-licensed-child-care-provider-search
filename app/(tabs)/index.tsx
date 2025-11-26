@@ -14,7 +14,7 @@ function HomeScreen() {
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
-    backgroundColor: theme.color.violet[200],
+    backgroundColor: theme.color.violet[100],
     flex: 1,
     paddingTop: theme.spacing[1],
     paddingLeft: theme.spacing[2],

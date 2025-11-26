@@ -32,6 +32,7 @@ export interface CdecProvider {
 }
 
 export type Provider = CdecProvider & {
+  created_at?: string;
   location: {
     lat: number;
     lng: number;
@@ -41,11 +42,11 @@ export type Provider = CdecProvider & {
   website?: string;
   formatted_phone_number?: string;
   static_map_uri: string;
-  updated_at: string;
+  updated_at?: string;
   is_favorite?: boolean;
 };
 
-export interface ProviderFilters {
+export interface Filters {
   only_favorites: boolean;
   // Capacity
   licensed_infant_capacity: boolean;

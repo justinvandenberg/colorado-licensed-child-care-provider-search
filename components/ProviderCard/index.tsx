@@ -5,6 +5,7 @@ import { Provider } from "@/types/Provider";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
+import { useProviders } from "@/providers/ProvidersProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useUser } from "@/providers/UserProvider";
 
@@ -16,72 +17,58 @@ import ProviderCapacities from "./ProviderCapacities";
 import ProviderContact from "./ProviderContact";
 import ProviderStanding from "./ProviderStanding";
 
-type ProviderCardProps = {
-  onProviderDetails: () => void;
-} & Provider;
+interface ProviderCardProps {
+  provider: Provider;
+}
 
-const ProviderCard: FC<ProviderCardProps> = ({
-  provider_id,
-  provider_name,
-  quality_rating,
-  licensed_infant_capacity,
-  licensed_toddler_capacity,
-  licensed_school_age_capacity,
-  licensed_preschool_capacity,
-  licensed_preschool_and_school_age_capacity,
-  street_address,
-  city,
-  state,
-  static_map_uri,
-  formatted_phone_number,
-  formatted_address,
-  website,
-  onProviderDetails,
-}) => {
+const ProviderCard: FC<ProviderCardProps> = ({ provider }) => {
   const theme = useTheme();
-  const { updateUserFavorites, user } = useUser();
+  const { updateCurrentUserFavorites, currentUser } = useUser();
+  const { setCurrentProvider } = useProviders();
 
   return (
     <View style={styles.root}>
       <View style={styles.staticMapWrapper}>
-        <StaticMap imageUri={static_map_uri} />
+        <StaticMap imageUri={provider.static_map_uri} />
         <Button
           iconOnly={true}
           iconColor={theme.color.red[400]}
           iconName={
-            user?.favorites.includes(provider_id) ? "heart-fill" : "heart"
+            currentUser?.favorites.includes(provider.provider_id)
+              ? "heart" // TODO: Need a fill
+              : "heart"
           }
           title="Add to favorites"
           onPress={() => {
-            if (!user) {
+            if (!currentUser) {
               return;
             }
-            updateUserFavorites(String(provider_id), user);
+            updateCurrentUserFavorites(String(provider.provider_id));
           }}
           style={styles.favoriteButton}
         />
       </View>
       <View style={styles.titleWrapper}>
-        <ProviderStanding qualityRating={quality_rating} />
+        <ProviderStanding qualityRating={provider.quality_rating} />
         <Text fontSize={20} fontWeight={600}>
-          {provider_name}
+          {provider.provider_name}
         </Text>
         <ProviderContact
-          address={formatted_address}
-          phoneNumber={formatted_phone_number}
-          website={website}
+          address={provider.formatted_address}
+          phoneNumber={provider.formatted_phone_number}
+          website={provider.website}
         />
       </View>
       <ProviderCapacities
-        infantCapacity={licensed_infant_capacity}
-        toddlerCapacity={licensed_toddler_capacity}
-        preschoolCapacity={licensed_preschool_capacity}
-        schoolAgeCapacity={licensed_school_age_capacity}
+        infantCapacity={provider.licensed_infant_capacity}
+        toddlerCapacity={provider.licensed_toddler_capacity}
+        preschoolCapacity={provider.licensed_preschool_capacity}
+        schoolAgeCapacity={provider.licensed_school_age_capacity}
       />
       <Button
         direction="reverse"
         iconName="arrow-right"
-        onPress={onProviderDetails}
+        onPress={() => setCurrentProvider({ ...provider })}
         title="See more"
         variant="inverted"
       />
@@ -113,10 +100,10 @@ const styles = createThemedStyleSheet((theme) => ({
     position: "relative",
   },
   favoriteButton: {
+    backgroundColor: theme.color.red[100],
+    left: theme.spacing[2],
     position: "absolute",
     top: theme.spacing[2],
-    left: theme.spacing[2],
-    backgroundColor: theme.color.red[100],
   },
   titleWrapper: {
     gap: theme.spacing[2],

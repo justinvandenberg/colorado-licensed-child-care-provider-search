@@ -21,11 +21,9 @@ const ProviderListHeader: FC = () => {
         <ProviderSearch />
         <ProviderFilters />
       </View>
-      {isFetched && (
-        <Text color={theme.color.violet[400]} fontWeight={600} center={true}>
-          Found {totalProviders} child care providers
-        </Text>
-      )}
+      <Text color={theme.color.violet[400]} fontWeight={600} center={true}>
+        {isFetched ? `Found ${totalProviders} child care providers` : " "}
+      </Text>
     </View>
   );
 };

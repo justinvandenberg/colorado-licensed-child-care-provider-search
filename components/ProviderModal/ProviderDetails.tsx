@@ -1,34 +1,25 @@
 import { FC } from "react";
 import { View } from "react-native";
 
-import { useTheme } from "@/providers/ThemeProvider";
-
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
+import { useTheme } from "@/providers/ThemeProvider";
+
 import Text from "../ui/Text";
-import TextIcon, { IconName } from "../ui/TextIcon";
 
 interface ProviderDetailsProps {
-  iconName: IconName;
   listItems: Record<string, string>;
   title: string;
 }
 
-const ProviderDetails: FC<ProviderDetailsProps> = ({
-  iconName,
-  listItems,
-  title,
-}) => {
+const ProviderDetails: FC<ProviderDetailsProps> = ({ listItems, title }) => {
   const theme = useTheme();
+
   return (
     <View style={styles.root}>
-      <TextIcon
-        iconName={iconName}
-        title={title}
-        titleColor={theme.color.violet[400]}
-        titleSize={18}
-        fontWeight={600}
-      />
+      <Text color={theme.color.violet[400]} fontSize={20} fontWeight={600}>
+        {title}
+      </Text>
       <View style={styles.list}>
         {Object.entries(listItems).map(([key, value]) => (
           <View key={key} style={styles.listItem}>
@@ -49,6 +40,7 @@ const styles = createThemedStyleSheet((theme) => ({
   },
   list: {
     gap: theme.spacing[2],
+    marginTop: theme.spacing[2],
   },
   listItem: {
     flexDirection: "row",

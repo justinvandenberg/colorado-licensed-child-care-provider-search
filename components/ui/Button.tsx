@@ -1,4 +1,4 @@
-import Octicons from "@expo/vector-icons/Octicons";
+import Feather from "@expo/vector-icons/Feather";
 import { useMemo } from "react";
 import {
   GestureResponderEvent,
@@ -17,12 +17,12 @@ import Text, { TextProps } from "./Text";
 import { IconName } from "./TextIcon";
 
 export type ButtonProps = {
-  disabled?: boolean;
   direction?: "forward" | "reverse";
   iconColor?: string;
   iconName?: IconName;
   iconOnly?: boolean;
   iconSize?: number;
+  isDisabled?: boolean;
   onPress: (event: GestureResponderEvent) => void;
   size?: "compact";
   style?: StyleProp<ViewStyle>;
@@ -35,11 +35,11 @@ export type ButtonProps = {
 
 const Button = ({
   direction = "forward",
-  disabled = false,
   iconColor,
   iconName,
   iconOnly = false,
   iconSize = 20,
+  isDisabled = false,
   onPress,
   size,
   style,
@@ -54,21 +54,21 @@ const Button = ({
   const Button = useMemo(() => {
     return (
       <Pressable
+        aria-label={iconOnly ? title : undefined}
+        disabled={isDisabled}
         onPress={onPress}
         style={({ pressed }) => [
           styles.root,
-          size === "compact" && styles.compact,
-          variant === "inverted" && styles.inverted,
+          size === "compact" && styles.sizeCompact,
+          variant === "inverted" && styles.variantInverted,
           {
             flexDirection: direction === "reverse" ? "row-reverse" : "row",
           },
           style,
         ]}
-        disabled={disabled}
-        aria-label={iconOnly ? title : undefined}
       >
         {iconName && (
-          <Octicons
+          <Feather
             color={
               iconColor
                 ? iconColor
@@ -104,11 +104,11 @@ const Button = ({
     );
   }, [
     direction,
-    disabled,
     iconColor,
     iconName,
     iconOnly,
     iconSize,
+    isDisabled,
     onPress,
     size,
     style,
@@ -137,13 +137,13 @@ const styles = createThemedStyleSheet((theme) => ({
     justifyContent: "center",
     padding: theme.spacing[6],
   },
-  compact: {
+  sizeCompact: {
     backgroundColor: theme.color.violet[100],
     borderRadius: 12,
     paddingHorizontal: theme.spacing[3],
     paddingVertical: theme.spacing[2],
   },
-  inverted: {
+  variantInverted: {
     backgroundColor: theme.color.transparent,
   },
   title: {

@@ -13,7 +13,7 @@ const StaticMap: FC<StaticMapProps> = ({ imageUri }) => {
     <View style={styles.root}>
       {imageUri && (
         <>
-          <Image source={imageUri} contentFit="cover" style={{ flex: 1 }} />
+          <Image source={imageUri} contentFit="cover" style={styles.image} />
           <View style={styles.overlay}></View>
         </>
       )}
@@ -28,6 +28,9 @@ const styles = createThemedStyleSheet((theme) => ({
     borderRadius: theme.spacing[8],
     overflow: "hidden",
     position: "relative",
+  },
+  image: {
+    flex: 1,
   },
   overlay: {
     position: "absolute",

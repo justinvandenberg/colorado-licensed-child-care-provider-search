@@ -1,6 +1,6 @@
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
-import Octicons from "@expo/vector-icons/Octicons";
-import { FC } from "react";
+import Feather from "@expo/vector-icons/Feather";
+import { FC, useState } from "react";
 import {
   ColorValue,
   TextInput as RnTextInput,
@@ -15,31 +15,33 @@ import { useTheme } from "@/providers/ThemeProvider";
 import Text from "./Text";
 import { IconName } from "./TextIcon";
 
-type TextInputProps = {
-  disabled?: boolean;
+type TextInputProps = RnTextInputProps & {
   iconColor?: ColorValue;
   iconName?: IconName;
+  initialValue?: string;
+  isDisabled?: boolean;
   label: string;
   labelColor?: ColorValue;
   showLabel?: boolean;
   style?: StyleProp<ViewStyle>;
   textInputStyle?: RnTextInputProps["style"];
-} & RnTextInputProps;
+};
 
 const TextInput: FC<TextInputProps> = ({
-  disabled = false,
   iconColor,
   iconName,
+  initialValue = "",
+  isDisabled = false,
   label,
   labelColor,
   onChangeText,
   showLabel = true,
   style,
   textInputStyle,
-  value = "",
   ...props
 }) => {
   const theme = useTheme();
+  const [value, setValue] = useState<string>(initialValue);
 
   return (
     <View style={styles.root}>
@@ -50,7 +52,7 @@ const TextInput: FC<TextInputProps> = ({
       )}
       <View style={[styles.textInputWrapper, style]}>
         {iconName && (
-          <Octicons
+          <Feather
             color={iconColor ? iconColor : theme.color.violet[400]}
             name={iconName}
             size={24}
@@ -58,8 +60,12 @@ const TextInput: FC<TextInputProps> = ({
         )}
         <RnTextInput
           {...props}
-          editable={!disabled}
-          onChangeText={onChangeText}
+          aria-label={!showLabel ? label : undefined}
+          editable={!isDisabled}
+          onChangeText={(value) => {
+            setValue(value);
+            onChangeText?.(value);
+          }}
           style={[styles.textInput, textInputStyle]}
           value={value}
         />
@@ -88,8 +94,7 @@ const styles = createThemedStyleSheet((theme) => ({
     flexGrow: 1,
     paddingLeft: theme.spacing[2],
     paddingRight: theme.spacing[4],
-    paddingTop: 22,
-    paddingBottom: 22,
+    paddingVertical: 22,
     fontSize: 16,
   },
 }));

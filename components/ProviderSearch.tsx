@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { View } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
@@ -11,14 +11,50 @@ import Text from "./ui/Text";
 import TextInput from "./ui/TextInput";
 
 interface ProviderSearchProps {
-  disabled?: boolean;
+  isDisabled?: boolean;
 }
 
-const ProviderSearch: FC<ProviderSearchProps> = ({ disabled = false }) => {
+const ProviderSearch: FC<ProviderSearchProps> = ({ isDisabled = false }) => {
   const theme = useTheme();
   const { updateZip, resetProviders } = useProviders();
+
   const [zip, setZip] = useState<string>("");
   const [isFocused, setIsFocused] = useState<boolean>(false);
+
+  /**
+   * Update zip code in the provider and in local state
+   * @param value {string} The value of the text input
+   */
+  const handleChangeText = useCallback(
+    (value: string) => {
+      // Remove non-numeric characters
+      const numericValue = value.replace(/[^0-9]/g, "");
+
+      // Limit to 5 characters
+      const truncatedValue = numericValue.slice(0, 5);
+
+      /**
+       * Reset when value is empty and zip is not
+       * Checking against `zip` will ensure we don't continuous check when empty
+       * Check against `numericValue` for this one
+       */
+      if (numericValue.length === 0 && zip.length !== 0) {
+        resetProviders();
+      }
+
+      /**
+       * Fetch new providers ONLY if the value is 5 characters
+       * Check against `value` for this one
+       */
+      if (value.length === 5) {
+        updateZip(value.slice(0, 5));
+      }
+
+      // Set zip all the time, so the value still updates for the user
+      setZip(truncatedValue);
+    },
+    [resetProviders, updateZip, zip.length]
+  );
 
   return (
     <View style={styles.root}>
@@ -28,7 +64,13 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ disabled = false }) => {
       <View style={styles.form}>
         <View style={styles.textInputWrapper}>
           <TextInput
-            disabled={disabled}
+            isDisabled={isDisabled}
+            iconName="search"
+            label="Zip code"
+            onBlur={() => setIsFocused(false)}
+            onChangeText={handleChangeText}
+            onFocus={() => setIsFocused(true)}
+            showLabel={false}
             style={[
               styles.textInput,
               {
@@ -40,38 +82,6 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ disabled = false }) => {
                     : theme.color.white,
               },
             ]}
-            iconName="search"
-            label="Zip code"
-            onBlur={() => setIsFocused(false)}
-            onChangeText={(value) => {
-              // Remove non-numeric characters
-              const numericValue = value.replace(/[^0-9]/g, "");
-
-              // Limit to 5 characters
-              const truncatedValue = numericValue.slice(0, 5);
-
-              /**
-               * Reset when value is empty and zip is not
-               * Checking against `zip` will ensure we don't continuous check when empty
-               * Check against `numericValue` for this one
-               */
-              if (numericValue.length === 0 && zip.length !== 0) {
-                resetProviders();
-              }
-
-              /**
-               * Fetch new providers ONLY if the value is 5 characters
-               * Check against `value` for this one
-               */
-              if (value.length === 5) {
-                updateZip(value.slice(0, 5));
-              }
-
-              // Set zip all the time, so the value still updates for the user
-              setZip(truncatedValue);
-            }}
-            onFocus={() => setIsFocused(true)}
-            showLabel={false}
             textInputStyle={{
               paddingTop: theme.spacing[5],
               paddingBottom: theme.spacing[5],
@@ -80,11 +90,12 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ disabled = false }) => {
           />
         </View>
         <LocationButton
-          disabled={disabled}
+          isDisabled={isDisabled}
           onLocationPermissionGranted={(zip) => {
             if (!zip) {
               return;
             }
+
             updateZip(zip);
             setZip(zip);
           }}

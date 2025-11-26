@@ -1,9 +1,9 @@
-import Octicons from "@expo/vector-icons/Octicons";
+import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
 import React from "react";
+import { StyleProp, TextStyle, ViewStyle } from "react-native";
 
 import { useTheme } from "@/providers/ThemeProvider";
-import { StyleProp, TextStyle, ViewStyle } from "react-native";
 
 export default function TabLayout() {
   const theme = useTheme();
@@ -61,8 +61,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Search",
-          tabBarIcon: ({ color }) => (
-            <Octicons color={theme.color.violet[400]} name="search" size={24} />
+          tabBarIcon: () => (
+            <Feather color={theme.color.violet[400]} name="search" size={24} />
           ),
         }}
       />
@@ -70,12 +70,8 @@ export default function TabLayout() {
         name="visits"
         options={{
           title: "Visits",
-          tabBarIcon: ({ color }) => (
-            <Octicons
-              color={theme.color.violet[700]}
-              name="checklist"
-              size={24}
-            />
+          tabBarIcon: () => (
+            <Feather color={theme.color.violet[400]} name="list" size={24} />
           ),
         }}
       />
@@ -83,12 +79,8 @@ export default function TabLayout() {
         name="dev"
         options={{
           title: "Dev",
-          tabBarIcon: ({ color }) => (
-            <Octicons
-              color={theme.color.green[400]}
-              name="command-palette"
-              size={24}
-            />
+          tabBarIcon: () => (
+            <Feather color={theme.color.green[400]} name="terminal" size={24} />
           ),
           tabBarItemStyle,
           tabBarLabelStyle: {

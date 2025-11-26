@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { File } from "expo-file-system";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import {
   createContext,
   PropsWithChildren,
@@ -10,11 +12,18 @@ import {
 } from "react";
 import { Keyboard } from "react-native";
 
-import { Provider, ProviderFilters } from "@/types/Provider";
+import { Filters, Provider } from "@/types/Provider";
 
-import { fetchFirestoreDbProviders } from "@/utilities/firestoreDb";
+import { fetchCdecProviders } from "@/utilities/cdec";
 
-const defaultProviderFilters: ProviderFilters = {
+import { firebaseDb } from "@/firebaseDb";
+
+import { downloadGoogleStaticMapImage } from "@/utilities/google";
+
+export const DIR_NAME = "maps";
+export const FILE_EXT = ".jpg";
+
+const defaultFilters: Filters = {
   only_favorites: false,
   licensed_infant_capacity: false,
   licensed_toddler_capacity: false,
@@ -29,13 +38,13 @@ const defaultProviderFilters: ProviderFilters = {
 };
 
 type ProvidersContextType = {
-  applyProviderFilters: (providerFilters: ProviderFilters) => void;
+  applyFilters: (filters: Filters) => void;
   currentProvider: Provider | null;
   error: Error | null;
   isFetching: boolean;
   isFetched: boolean;
   isLoading: boolean;
-  providerFilters: ProviderFilters;
+  filters: Filters;
   providers: Provider[];
   resetProviders: () => void;
   setCurrentProvider: (provider: Provider | null) => void;
@@ -45,13 +54,13 @@ type ProvidersContextType = {
 };
 
 const ProvidersContext = createContext<ProvidersContextType>({
-  applyProviderFilters: () => {},
+  applyFilters: () => {},
   currentProvider: null,
   error: null,
   isFetched: false,
   isFetching: false,
   isLoading: false,
-  providerFilters: defaultProviderFilters,
+  filters: defaultFilters,
   providers: [],
   resetProviders: () => {},
   setCurrentProvider: () => {},
@@ -62,14 +71,12 @@ const ProvidersContext = createContext<ProvidersContextType>({
 
 const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [currentProvider, setCurrentProvider] = useState<Provider | null>(null);
-  const [providerFilters, setProviderFilters] = useState<ProviderFilters>(
-    defaultProviderFilters
-  );
+  const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [zip, setZip] = useState<string>("");
 
   const { data, error, isLoading, isFetching, isFetched } = useQuery({
-    queryKey: ["fetchFirestoreDbProviders", zip, providerFilters],
-    queryFn: () => fetchFirestoreDbProviders(zip, providerFilters),
+    queryKey: ["fetchProviders", zip, filters],
+    queryFn: () => fetchProviders(zip, filters),
     enabled: () => zip.length === 5, // Only fire when the zip is valid
   });
 
@@ -90,13 +97,13 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   return (
     <ProvidersContext.Provider
       value={{
-        applyProviderFilters: setProviderFilters,
+        applyFilters: setFilters,
         currentProvider,
         error,
         isLoading,
         isFetching,
         isFetched,
-        providerFilters,
+        filters,
         providers: data ?? [],
         resetProviders,
         setCurrentProvider,
@@ -118,6 +125,123 @@ const useProviders = () => {
   }
 
   return context;
+};
+
+/**
+ *
+ * @param zip {string} The zip code the search within
+ * @returns {Promise<Provider[]>} An array of providers
+ */
+const fetchProviders = async (
+  zip: string,
+  filters: Filters
+): Promise<Provider[]> => {
+  const baseQuery = `SELECT * WHERE zip = '${zip}'`;
+  const capacityQueries: string[] = [];
+  const settingQueries: string[] = [];
+  const programQueries: string[] = [];
+
+  // Map the boolean filters values to query clauses
+  for (const [key, value] of Object.entries(filters)) {
+    if (!value) {
+      continue;
+    }
+
+    if (key.startsWith("licensed_")) {
+      capacityQueries.push(`\`${key}\` > 0`);
+      continue;
+    }
+
+    if (key.startsWith("provider_service_type.")) {
+      const [, value] = key.split(".");
+      settingQueries.push(`"${value}"`);
+      continue;
+    }
+
+    if (key.startsWith("cccap_")) {
+      programQueries.push(`\`${key}\` == TRUE`);
+    }
+  }
+
+  const clauses = [
+    capacityQueries.length && `(${capacityQueries.join(" OR ")})`,
+    settingQueries.length &&
+      `caseless_one_of(\`provider_service_type\`, ${settingQueries.join(
+        ", "
+      )})`,
+    programQueries.length && `(${programQueries.join(" OR ")})`,
+  ].filter(Boolean);
+
+  const filteredQuery = [baseQuery, ...clauses];
+
+  // Get CDEC providers for the given zip code
+  let cdecProviders = await fetchCdecProviders(filteredQuery.join(" AND "));
+
+  if (!cdecProviders) {
+    return [];
+  }
+
+  // Filter CDEC providers by favorites in the local DB
+  // TODO: Filter by favorites here
+  if (filters.only_favorites) {
+    // cdecProviders.map();
+  }
+
+  const ids: string[] = cdecProviders.map((provider) => provider.provider_id);
+
+  // Using the provider ids get all of the matching entries in the db
+  const providers = (
+    await Promise.all(
+      ids.map(async (provider_id) => {
+        try {
+          const providerSnap = await getDoc(
+            doc(firebaseDb, "providers", provider_id)
+          );
+
+          if (!providerSnap.exists()) {
+            return;
+          }
+          const provider = providerSnap.data() as Provider;
+
+          // Check if static map file exists, if not fetch it
+          const fileName = `${provider.provider_id}${FILE_EXT}`;
+          const file = new File(provider.static_map_uri);
+
+          if (!file.exists) {
+            const staticMap = await downloadGoogleStaticMapImage(
+              DIR_NAME,
+              fileName,
+              {
+                lat: provider.location.lat,
+                lng: provider.location.lng,
+              }
+            );
+
+            if (!staticMap) {
+              console.warn(
+                `A static map could not be found for: ${provider.provider_name} (${provider.provider_id})`
+              );
+            }
+
+            // Just in case, update the static map path in the db
+            await updateDoc(
+              doc(collection(firebaseDb, "providers"), provider.provider_id),
+              {
+                static_map_uri: staticMap.uri,
+              }
+            );
+          }
+
+          return provider;
+        } catch (error) {
+          console.warn(`Failed to fetch provider ${provider_id}:`, error);
+          return undefined;
+        }
+      })
+    )
+  ).filter((provider): provider is Provider => provider !== undefined);
+
+  return providers;
 };
 
 export { ProvidersProvider, useProviders };

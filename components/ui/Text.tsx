@@ -42,7 +42,7 @@ const Text: FC<TextProps> = ({
   color,
   fontSize = 16,
   fontWeight = 400,
-  style = {},
+  style,
   ...props
 }) => {
   const theme = useTheme();
@@ -62,44 +62,10 @@ const Text: FC<TextProps> = ({
   if (!fontsLoaded) {
     return null;
   } else {
-    let fontFamily;
-    let letterSpacing = fontSize * -0.01; // -1%
-    let lineHeight = fontSize * 1.05; // 105%
-    switch (fontWeight) {
-      case 400:
-      case "400":
-        fontFamily = "DMSans_400Regular";
-        break;
-      case "400i":
-        fontFamily = "DMSans_400Regular_Italic";
-        break;
-      case 500:
-      case "500":
-        fontFamily = "DMSans_500Medium";
-        break;
-      case "500i":
-        fontFamily = "DMSans_500Medium_Italic";
-        break;
-      case 600:
-      case "600":
-        fontFamily = "DMSans_600SemiBold";
-        break;
-      case "600i":
-        fontFamily = "DMSans_600SemiBold_Italic";
-        break;
-      case 700:
-      case "700":
-        fontFamily = "DMSans_700Bold";
-        break;
-      case "700i":
-        fontFamily = "DMSans_700Bold_Italic";
-        break;
-      case "mono":
-        fontFamily = "DMMono_400Regular";
-        letterSpacing = 0;
-        lineHeight = fontSize;
-        break;
-    }
+    const { fontFamily, letterSpacing, lineHeight } = getFontProps(
+      fontSize,
+      fontWeight
+    );
 
     return (
       <RnText
@@ -118,6 +84,53 @@ const Text: FC<TextProps> = ({
       />
     );
   }
+};
+
+export const getFontProps = (
+  fontSize: TextProps["fontSize"] = 16,
+  fontWeight: TextProps["fontWeight"]
+) => {
+  let fontFamily;
+  let letterSpacing = fontSize * -0.01; // -1%
+  let lineHeight = fontSize * 1.05; // 105%
+
+  switch (fontWeight) {
+    case 400:
+    case "400":
+      fontFamily = "DMSans_400Regular";
+      break;
+    case "400i":
+      fontFamily = "DMSans_400Regular_Italic";
+      break;
+    case 500:
+    case "500":
+      fontFamily = "DMSans_500Medium";
+      break;
+    case "500i":
+      fontFamily = "DMSans_500Medium_Italic";
+      break;
+    case 600:
+    case "600":
+      fontFamily = "DMSans_600SemiBold";
+      break;
+    case "600i":
+      fontFamily = "DMSans_600SemiBold_Italic";
+      break;
+    case 700:
+    case "700":
+      fontFamily = "DMSans_700Bold";
+      break;
+    case "700i":
+      fontFamily = "DMSans_700Bold_Italic";
+      break;
+    case "mono":
+      fontFamily = "DMMono_400Regular";
+      letterSpacing = 0;
+      lineHeight = fontSize;
+      break;
+  }
+
+  return { fontFamily, letterSpacing, lineHeight };
 };
 
 export default Text;

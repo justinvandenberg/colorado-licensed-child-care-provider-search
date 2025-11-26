@@ -1,28 +1,34 @@
-import { useEffect } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { useTheme } from "@/providers/ThemeProvider";
+import { VisitsProvider } from "@/providers/VisitsProvider";
+
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import Text from "@/components/ui/Text";
-import { useUser } from "@/providers/UserProvider";
+
+import VisitList from "@/components/VisitList";
 
 export default function VisitsScreen() {
-  const { user } = useUser();
-
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
+  const theme = useTheme();
 
   return (
-    <ScrollView style={styles.root}>
-      <Text>Visit2rs</Text>
-      {/* <Button onPress={() => toggleFavorite(1676722, true)} title="1676722" />
-      <Button onPress={() => toggleFavorite(1724032, true)} title="1724032" /> */}
-    </ScrollView>
+    <VisitsProvider>
+      <SafeAreaView style={styles.root}>
+        <Text color={theme.color.violet[400]} fontSize={36} fontWeight="600">
+          Visits
+        </Text>
+        <VisitList />
+      </SafeAreaView>
+    </VisitsProvider>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = createThemedStyleSheet((theme) => ({
   root: {
-    paddingVertical: 80,
-    paddingHorizontal: 16,
+    backgroundColor: theme.color.violet[100],
+    gap: theme.spacing[1],
+    flex: 1,
+    paddingHorizontal: theme.spacing[2],
   },
-});
+}));

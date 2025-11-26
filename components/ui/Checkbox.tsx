@@ -1,6 +1,5 @@
 import { useTheme } from "@/providers/ThemeProvider";
-import Octicons from "@expo/vector-icons/Octicons";
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   ColorValue,
   StyleProp,
@@ -11,48 +10,69 @@ import {
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
+import Feather from "@expo/vector-icons/Feather";
 import Text from "./Text";
 
 type CheckboxProps = {
-  disabled?: boolean;
   direction?: "forward" | "reverse";
+  initialIsChecked?: boolean;
+  isDisabled?: boolean;
   label: string;
   labelColor?: ColorValue;
-  showLabel?: boolean;
-  style?: StyleProp<ViewStyle>;
   onChange?: (value: boolean) => void;
-  startChecked?: boolean;
-  isChecked?: boolean;
+  showLabel?: boolean;
+  size?: "oversized";
+  style?: StyleProp<ViewStyle>;
 };
 
 const Checkbox: FC<CheckboxProps> = ({
-  disabled = false,
   direction = "forward",
+  initialIsChecked = false,
+  isDisabled = false,
   label,
   onChange = () => {},
   labelColor,
   showLabel = true,
-  startChecked = false,
-  isChecked = false,
+  size,
 }) => {
   const theme = useTheme();
+
+  const [isChecked, setIsChecked] = useState<boolean>(initialIsChecked);
 
   return (
     <TouchableOpacity
       style={[
         styles.root,
-        [{ flexDirection: direction === "reverse" ? "row-reverse" : "row" }],
+        [
+          {
+            flexDirection: direction === "reverse" ? "row-reverse" : "row",
+            pointerEvents: isDisabled ? "none" : "auto",
+          },
+        ],
       ]}
-      onPress={() => onChange?.(!isChecked)}
+      onPress={() => {
+        setIsChecked(!isChecked);
+        onChange?.(!isChecked);
+      }}
       aria-label={!showLabel ? label : undefined}
     >
-      <View style={[styles.checkbox, isChecked && styles.checkboxChecked]}>
+      <View
+        style={[
+          styles.checkbox,
+          size === "oversized" && styles.sizeOversizedCheckbox,
+          isChecked && styles.checkboxChecked,
+        ]}
+      >
         {isChecked && (
-          <Octicons color={theme.color.white} name="check" size={20} />
+          <Feather
+            color={theme.color.white}
+            name="check"
+            size={size === "oversized" ? 28 : 20}
+          />
         )}
       </View>
-      {label && (
-        <Text fontWeight={500} style={styles.label}>
+      {showLabel && (
+        <Text fontWeight={500} color={labelColor} style={styles.label}>
           {label}
         </Text>
       )}
@@ -66,19 +86,25 @@ const styles = createThemedStyleSheet((theme) => ({
     justifyContent: "space-between",
   },
   checkbox: {
-    width: theme.spacing[6],
-    height: theme.spacing[6],
+    alignItems: "center",
     borderRadius: 8,
     borderWidth: 2,
     borderColor: theme.color.violet[400],
+    height: theme.spacing[6],
     justifyContent: "center",
-    alignItems: "center",
+    width: theme.spacing[6],
+  },
+  sizeOversizedCheckbox: {
+    borderRadius: 14,
+    height: theme.spacing[10],
+    width: theme.spacing[10],
   },
   checkboxChecked: {
-    backgroundColor: "blue",
-    borderColor: "blue",
+    backgroundColor: theme.color.violet[700],
+    borderColor: theme.color.violet[700],
   },
   label: {
+    flexShrink: 1,
     marginTop: 6,
   },
 }));
