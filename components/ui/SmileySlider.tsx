@@ -8,6 +8,7 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import Animated, {
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -19,28 +20,30 @@ import Text from "./Text";
 
 const SLIDER_THUMB_SIZE = 40;
 const SLIDER_WIDTH = 320;
-const TOTAL_STEPS = 8;
 const SMILEY_SIZE = 40;
+const TOTAL_STEPS = 8;
+const MAX_VALUE = SLIDER_WIDTH - SLIDER_THUMB_SIZE;
+const STEP_WIDTH = MAX_VALUE / TOTAL_STEPS;
 
 type SmileySliderProps = {
   label: string;
   labelColor?: ColorValue;
+  onPanEnd?: (value: number) => void;
   showLabel?: boolean;
   style?: StyleProp<ViewStyle>;
-  value?: number;
+  initialValue?: number;
 };
 
 const SmileySlider: FC<SmileySliderProps> = ({
-  showLabel = true,
   label,
   labelColor,
+  onPanEnd = () => {},
+  showLabel = true,
   style,
-  value,
+  initialValue = 4,
 }) => {
-  const MAX_VALUE = SLIDER_WIDTH - SLIDER_THUMB_SIZE;
-  const offset = useSharedValue(Math.floor(MAX_VALUE / 2));
-  const index = useSharedValue(Math.floor(TOTAL_STEPS / 2));
-
+  const offset = useSharedValue(Math.floor(initialValue * STEP_WIDTH));
+  const currentStep = useSharedValue(Math.floor(initialValue));
   const [assets] = useAssets([
     require("../../assets/images/smiley-slider-0.svg"),
     require("../../assets/images/smiley-slider-1.svg"),
@@ -53,25 +56,39 @@ const SmileySlider: FC<SmileySliderProps> = ({
     require("../../assets/images/smiley-slider-8.svg"),
   ]);
 
-  const pan = Gesture.Pan()
+  // Worklet-safe snap function
+  const snapToClosestStep = (value: number) => {
+    "worklet";
+    const index = Math.round(value / STEP_WIDTH);
+    return index * STEP_WIDTH;
+  };
+
+  // Handle pan gesture
+  const handlePan = Gesture.Pan()
     .onChange((event) => {
-      offset.value =
-        Math.abs(offset.value) <= MAX_VALUE
-          ? offset.value + event.changeX <= 0
-            ? 0
-            : offset.value + event.changeX >= MAX_VALUE
-            ? MAX_VALUE
-            : offset.value + event.changeX
-          : offset.value;
+      "worklet";
+      const nextValue = offset.value + event.changeX;
+
+      // Clamp to 0 – MAX_VALUE
+      if (nextValue < 0) {
+        offset.value = 0;
+      } else if (nextValue > MAX_VALUE) {
+        offset.value = MAX_VALUE;
+      } else {
+        offset.value = nextValue;
+      }
     })
     .onEnd(() => {
-      // Change the index
-      const pos = offset.value / MAX_VALUE;
-      index.value = Math.floor(pos * TOTAL_STEPS);
+      "worklet";
+      // Snap to closest step
+      const snapped = snapToClosestStep(offset.value);
+      offset.value = withSpring(snapped);
 
-      // Snap the offset to the nearest step
-      const snappedOffset = index.value * (MAX_VALUE / TOTAL_STEPS);
-      offset.value = withSpring(snappedOffset);
+      // Find the index of the current step
+      const stepSize = MAX_VALUE / TOTAL_STEPS;
+      currentStep.value = Math.round(snapped / stepSize);
+
+      runOnJS(onPanEnd)(currentStep.value);
     });
 
   const sliderStyle = useAnimatedStyle(() => {
@@ -82,12 +99,12 @@ const SmileySlider: FC<SmileySliderProps> = ({
 
   const smileyStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ translateY: -index.value * SMILEY_SIZE }],
+      transform: [{ translateY: -currentStep.value * SMILEY_SIZE }],
     };
   });
 
   return (
-    <View style={[styles.root, style]}>
+    <View style={style}>
       {showLabel && (
         <Text color={labelColor} fontWeight={500}>
           {label}
@@ -111,7 +128,7 @@ const SmileySlider: FC<SmileySliderProps> = ({
           </Animated.View>
         </View>
         <View style={styles.slider}>
-          <GestureDetector gesture={pan}>
+          <GestureDetector gesture={handlePan}>
             <Animated.View style={[styles.sliderHandle, sliderStyle]} />
           </GestureDetector>
           <View style={styles.sliderTrack} />
@@ -122,7 +139,6 @@ const SmileySlider: FC<SmileySliderProps> = ({
 };
 
 const styles = createThemedStyleSheet((theme) => ({
-  root: {},
   smileyWrapper: {
     alignItems: "center",
     justifyContent: "center",

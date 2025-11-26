@@ -2,9 +2,10 @@ import { FC, useMemo } from "react";
 
 import { Provider } from "@/types/Provider";
 
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
 import { useTheme } from "@/providers/ThemeProvider";
 
-import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import TextIcon, { IconName } from "../ui/TextIcon";
 
 type ProviderStandingProps = {
@@ -14,7 +15,7 @@ type ProviderStandingProps = {
 const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
   const theme = useTheme();
   const props = useMemo(() => {
-    let iconName: IconName = "hourglass";
+    let iconName: IconName = "slash";
     let iconColor = theme.color.red[400];
     let title = "Not yet rated";
     let titleColor = theme.color.red[700];
@@ -22,7 +23,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
 
     switch (qualityRating) {
       case "1":
-        iconName = "file-badge";
+        iconName = "award";
         iconColor = theme.color.yellow[400];
         title = "Licensed";
         titleColor = theme.color.yellow[700];
@@ -30,7 +31,7 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
         break;
 
       case "2":
-        iconName = "thumbsup";
+        iconName = "thumbs-up";
         iconColor = theme.color.violet[400];
         title = "Good standing";
         titleColor = theme.color.violet[700];
@@ -40,9 +41,9 @@ const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
       case "3":
       case "4":
       case "5":
-        iconName = "sponsor-tiers";
+        iconName = "star";
         iconColor = theme.color.green[400];
-        title = "High-quality";
+        title = "High quality";
         titleColor = theme.color.green[700];
         bgColor = theme.color.green[100];
         break;

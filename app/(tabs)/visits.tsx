@@ -1,64 +1,34 @@
-import { useEffect } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import Button from "@/components/ui/Button";
-import VisitCard from "@/components/VisitCard";
-import VisitModal from "@/components/VisitModal";
-import { useUser } from "@/providers/UserProvider";
+import { useTheme } from "@/providers/ThemeProvider";
+import { VisitsProvider } from "@/providers/VisitsProvider";
+
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
+import Text from "@/components/ui/Text";
+
+import VisitList from "@/components/VisitList";
 
 export default function VisitsScreen() {
-  const { currentUser, setCurrentVisit, currentVisit } = useUser();
-
-  useEffect(() => {
-    // console.log(user);
-  }, [currentUser]);
+  const theme = useTheme();
 
   return (
-    <View style={styles.root}>
-      <FlatList
-        data={currentUser?.visits}
-        // ListHeaderComponent={ProviderListHeader}
-        // ListEmptyComponent={() => {
-        //   return isFetching ?? <ActivityIndicator />;
-        // }}
-        renderItem={({ item }) => (
-          <VisitCard {...item} onClick={() => setCurrentVisit(item)} />
-        )}
-        keyExtractor={(item) => item.id}
-        // contentContainerStyle={{
-        //   gap: theme.spacing[2],
-        //   paddingBottom: 104,
-        // }}
-      />
-      <Button
-        onPress={() => {
-          const id = generateId();
-          setCurrentVisit({ id, title: "" });
-        }}
-        iconName="plus"
-        title="Add a visit"
-      />
-      {currentVisit && currentUser && (
-        <VisitModal
-          onClose={() => setCurrentVisit(null)}
-          user={currentUser}
-          visit={currentVisit}
-          visible={!!currentVisit}
-        />
-      )}
-    </View>
+    <VisitsProvider>
+      <SafeAreaView style={styles.root}>
+        <Text color={theme.color.violet[400]} fontSize={36} fontWeight="600">
+          Visits
+        </Text>
+        <VisitList />
+      </SafeAreaView>
+    </VisitsProvider>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = createThemedStyleSheet((theme) => ({
   root: {
-    paddingVertical: 80,
-    paddingHorizontal: 16,
+    backgroundColor: theme.color.violet[100],
+    gap: theme.spacing[1],
+    flex: 1,
+    paddingHorizontal: theme.spacing[2],
   },
-});
-
-const generateId = (length: number = 14) => {
-  return Math.random()
-    .toString(36)
-    .substring(2, length + 2);
-};
+}));

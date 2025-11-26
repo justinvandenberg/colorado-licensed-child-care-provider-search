@@ -1,6 +1,8 @@
 import { FC } from "react";
 import { ActivityIndicator, FlatList } from "react-native";
 
+import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
 import { useProviders } from "@/providers/ProvidersProvider";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -16,10 +18,7 @@ const ProviderCardList: FC = () => {
   return (
     <>
       <FlatList
-        contentContainerStyle={{
-          gap: theme.spacing[2],
-          paddingBottom: 104,
-        }}
+        contentContainerStyle={styles.contentContainer}
         data={providers}
         keyExtractor={(item) => item.provider_id}
         ListHeaderComponent={ProviderListHeader}
@@ -30,19 +29,19 @@ const ProviderCardList: FC = () => {
             )
           );
         }}
-        renderItem={({ item }) => (
-          <ProviderCard {...item} onClick={() => setCurrentProvider(item)} />
-        )}
+        renderItem={({ item }) => <ProviderCard provider={item} />}
       />
       {currentProvider && (
-        <ProviderModal
-          onClose={() => setCurrentProvider(null)}
-          provider={currentProvider}
-          visible={!!currentProvider}
-        />
+        <ProviderModal provider={currentProvider} visible={!!currentProvider} />
       )}
     </>
   );
 };
+
+const styles = createThemedStyleSheet((theme) => ({
+  contentContainer: {
+    gap: theme.spacing[2],
+  },
+}));
 
 export default ProviderCardList;

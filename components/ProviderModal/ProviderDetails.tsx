@@ -1,9 +1,9 @@
 import { FC } from "react";
 import { View } from "react-native";
 
-import { useTheme } from "@/providers/ThemeProvider";
-
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
+import { useTheme } from "@/providers/ThemeProvider";
 
 import Text from "../ui/Text";
 

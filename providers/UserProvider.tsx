@@ -8,65 +8,96 @@ import {
   useState,
 } from "react";
 
-import { User, Visit } from "@/types/User";
+import { DbUser, User } from "@/types/User";
 
-import {
-  fetchLocalDbUser,
-  updateLocalDbUserFavorites,
-} from "@/utilities/localDb";
+import { localDb } from "@/localDb";
 
 interface UserContextType {
-  currentVisit: Visit | null;
   error: Error | null;
   isFetching: boolean;
   isFetched: boolean;
   isLoading: boolean;
-  setCurrentVisit: (visit: Visit | null) => void;
-  updateUserFavorites: (id: string, user: User) => void;
+  updateCurrentUserFavorites: (providerId: string) => void;
+  currentUserFavorites: User["favorites"];
   currentUser?: User;
 }
 
 const UserContext = createContext<UserContextType>({
-  currentVisit: null,
   error: null,
   isFetched: false,
   isFetching: false,
   isLoading: false,
-  setCurrentVisit: () => {},
-  updateUserFavorites: () => {},
+  updateCurrentUserFavorites: () => {},
+  currentUserFavorites: [],
   currentUser: undefined,
 });
 
 const UserProvider = ({ children }: PropsWithChildren) => {
   const [currentUser, setCurrentUser] = useState<User | undefined>();
-  const [currentVisit, setCurrentVisit] = useState<Visit | null>(null);
+  const [currentUserFavorites, setCurrentUserFavorites] = useState<
+    User["favorites"]
+  >([]);
 
   const { data, error, isLoading, isFetching, isFetched } = useQuery({
-    queryKey: ["fetchLocalDbUser"],
-    queryFn: fetchLocalDbUser,
-    enabled: !currentUser,
+    queryKey: ["fetchUser"],
+    queryFn: fetchUser,
+    enabled: currentUser === undefined,
   });
 
-  const updateUserFavorites = useCallback(async (id: string, user: User) => {
-    const updatedUser = await updateLocalDbUserFavorites(id, user);
-    setCurrentUser(updatedUser);
-  }, []);
+  /**
+   *
+   */
+  const updateCurrentUserFavorites = useCallback(
+    async (providerId: string) => {
+      if (!currentUser) {
+        return;
+      }
+
+      // Get the current list of favorites for the user
+      let updatedFavorites = currentUserFavorites;
+
+      // Check if the provider passed in exists in the current list of favorites
+      if (currentUserFavorites.includes(providerId)) {
+        updatedFavorites = currentUserFavorites.filter((f) => f !== providerId); // Remove
+      } else {
+        updatedFavorites = [...currentUserFavorites, providerId]; // Add
+      }
+
+      // Update the row with the new list of favorites
+      await localDb.runAsync(
+        `
+          UPDATE users
+          SET favorites = ?
+          WHERE id = ?
+        `,
+        JSON.stringify(updatedFavorites),
+        currentUser.id
+      );
+
+      // Set the current user with the updated favorites
+      setCurrentUser({ ...currentUser, favorites: updatedFavorites });
+    },
+    [currentUser, currentUserFavorites]
+  );
 
   useEffect(() => {
     setCurrentUser(data);
+
+    if (data?.favorites) {
+      setCurrentUserFavorites(data.favorites);
+    }
   }, [data]);
 
   return (
     <UserContext.Provider
       value={{
         currentUser,
-        currentVisit,
         error,
         isLoading,
         isFetching,
         isFetched,
-        setCurrentVisit,
-        updateUserFavorites,
+        updateCurrentUserFavorites,
+        currentUserFavorites,
       }}
     >
       {children}
@@ -78,10 +109,55 @@ const useUser = () => {
   const context = useContext(UserContext);
 
   if (!context) {
-    throw new Error("useProviders must be used within a UserProvider");
+    throw new Error("useUser must be used within a UserProvider");
   }
 
   return context;
 };
 
-export { UserProvider, useUser };
+/**
+ * Get the first row from the user db table
+ * A db will be created if it doesn't exist
+ * @returns {Promise<User | undefined>}
+ */
+const fetchUser = async (): Promise<User | undefined> => {
+  // If a db table for the user data doesn't exist, create it
+
+  await localDb.execAsync(`
+    PRAGMA journal_mode = WAL;
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      favorites TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT
+    );
+    INSERT INTO users (favorites, created_at, updated_at) VALUES ('[]', (datetime('now')), (datetime('now')));
+    CREATE TRIGGER IF NOT EXISTS users_updated_at_timestamp
+    AFTER UPDATE ON users
+    FOR EACH ROW
+    BEGIN
+      UPDATE users
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id = NEW.id;
+    END;
+  `);
+
+  // Get the first row from the user db table
+  const user: DbUser | null = await localDb.getFirstAsync(
+    "SELECT * FROM users"
+  );
+
+  if (!user) {
+    return;
+  }
+
+  // Parse stringified favorite and visits into a usable array
+  const parsedUser = {
+    ...user,
+    favorites: JSON.parse(user.favorites),
+  };
+
+  return parsedUser;
+};
+
+export { fetchUser, UserProvider, useUser };

@@ -7,21 +7,23 @@ import Button from "./Button";
 
 export type ModalProps = {
   onClose?: () => void;
+  showCloseButton?: boolean;
 } & RnModalProps;
 
 const Modal: FC<ModalProps> = ({
   children,
   onClose = () => {},
+  showCloseButton = true,
   style,
   visible = false,
   ...props
 }) => {
   return (
     <RnModal
+      {...props}
       animationType="none"
       transparent={true}
       visible={visible}
-      {...props}
     >
       {visible && (
         <Animated.View entering={FadeIn.duration(200)} style={styles.overlay} />
@@ -31,15 +33,17 @@ const Modal: FC<ModalProps> = ({
         style={[styles.root, style]}
       >
         <>
-          <Button
-            iconName="x"
-            iconOnly={true}
-            onPress={onClose}
-            size="compact"
-            style={styles.button}
-            title="Close"
-            variant="inverted"
-          />
+          {showCloseButton && (
+            <Button
+              iconName="x"
+              iconOnly={true}
+              onPress={onClose}
+              size="compact"
+              style={styles.button}
+              title="Close modal"
+              variant="inverted"
+            />
+          )}
           {children}
         </>
       </Animated.ScrollView>

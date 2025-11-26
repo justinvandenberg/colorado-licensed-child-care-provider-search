@@ -6,24 +6,25 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import Button from "./Button";
 
 interface LocationButtonProps {
-  disabled?: boolean;
+  isDisabled?: boolean;
   onLocationPermissionGranted: (zip: string | null) => void;
 }
 
 const LocationButton: FC<LocationButtonProps> = ({
-  disabled = false,
+  isDisabled = false,
   onLocationPermissionGranted,
 }) => {
+  // Request current location from user
   const getCurrentLocation = useCallback(async () => {
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== "granted") {
         throw new Error("Permission was denied by user");
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      let addresses = await Location.reverseGeocodeAsync({
+      const location = await Location.getCurrentPositionAsync({});
+      const addresses = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
@@ -40,9 +41,9 @@ const LocationButton: FC<LocationButtonProps> = ({
 
   return (
     <Button
-      disabled={disabled}
+      disabled={isDisabled}
       iconOnly={true}
-      iconName="location"
+      iconName="crosshair"
       onPress={getCurrentLocation}
       style={styles.root}
       title="Provide current location to find locations nearby"

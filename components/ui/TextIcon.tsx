@@ -1,14 +1,14 @@
-import Octicons from "@expo/vector-icons/Octicons";
+import Feather from "@expo/vector-icons/Feather";
 import { ColorValue, StyleProp, View, ViewStyle } from "react-native";
 
-import { useTheme } from "@/providers/ThemeProvider";
-
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
+
+import { useTheme } from "@/providers/ThemeProvider";
 
 import Inline from "./Inline";
 import Text, { TextProps } from "./Text";
 
-export type IconName = keyof typeof Octicons.glyphMap;
+export type IconName = keyof typeof Feather.glyphMap;
 
 type TextIconProps = {
   direction?: "forwards" | "reverse";
@@ -46,7 +46,7 @@ const TextIcon = ({
           style,
         ]}
       >
-        <Octicons
+        <Feather
           color={iconColor ? iconColor : theme.color.violet[400]}
           name={iconName}
           size={iconSize}
@@ -68,8 +68,7 @@ const styles = createThemedStyleSheet((theme) => ({
   root: {
     alignItems: "center",
     gap: 6,
-    paddingTop: theme.spacing[2],
-    paddingBottom: theme.spacing[2],
+    paddingVertical: theme.spacing[2],
   },
   title: {
     marginTop: 3,

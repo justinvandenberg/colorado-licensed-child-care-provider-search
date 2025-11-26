@@ -45,7 +45,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
     >
       {website && (
         <Button
-          iconName="browser"
+          iconName="globe"
           onPress={() => {}}
           size="compact"
           style={styles.button}
@@ -56,7 +56,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
       )}
       {phoneNumber && (
         <Button
-          iconName="device-mobile"
+          iconName="phone"
           onPress={() => {}}
           size="compact"
           style={styles.button}
@@ -66,7 +66,7 @@ const ProviderContact: FC<ProviderContactProps> = ({
         />
       )}
       <Button
-        iconName="location"
+        iconName="map"
         onPress={() => {}}
         size="compact"
         style={[styles.button]}

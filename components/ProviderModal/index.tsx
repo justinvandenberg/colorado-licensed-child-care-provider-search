@@ -9,22 +9,22 @@ import Modal, { ModalProps } from "../ui/Modal";
 import StaticMap from "../ui/StaticMap";
 import Text from "../ui/Text";
 
+import { useProviders } from "@/providers/ProvidersProvider";
 import ProviderCapacities from "../ProviderCard/ProviderCapacities";
 import ProviderContact from "../ProviderCard/ProviderContact";
 import ProviderQualityRating from "../ProviderCard/ProviderStanding";
 import ProviderDetails from "./ProviderDetails";
 
-type ProviderModalProps = ModalProps & {
-  provider: Provider;
-};
+type ProviderModalProps = ModalProps & { provider: Provider };
 
 const ProviderModal: FC<ProviderModalProps> = ({
-  onClose = () => {},
   provider,
   visible = false,
 }) => {
+  const { setCurrentProvider } = useProviders();
+
   return (
-    <Modal visible={visible} onClose={onClose}>
+    <Modal visible={visible} onClose={() => setCurrentProvider(null)}>
       <ScrollView style={styles.root}>
         <View style={styles.modalWrapper}>
           <View style={styles.titleWrapper}>
@@ -112,6 +112,11 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
+/**
+ * Translate value to "Yes" or "No"
+ * @param value {unknown} The value to translate
+ * @returns string
+ */
 const valueToYesNo = (value: unknown) => {
   return !!value ? "Yes" : "No";
 };
