@@ -62,7 +62,7 @@ const Text: FC<TextProps> = ({
   if (!fontsLoaded) {
     return null;
   } else {
-    const { fontFamily, letterSpacing, lineHeight } = getFontProps(
+    const { fontFamily, letterSpacing, lineHeight } = getFontFamily(
       fontSize,
       fontWeight
     );
@@ -86,7 +86,7 @@ const Text: FC<TextProps> = ({
   }
 };
 
-export const getFontProps = (
+export const getFontFamily = (
   fontSize: TextProps["fontSize"] = 16,
   fontWeight: TextProps["fontWeight"]
 ) => {

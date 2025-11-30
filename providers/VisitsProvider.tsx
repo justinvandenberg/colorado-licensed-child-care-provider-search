@@ -20,7 +20,7 @@ interface VisitsContextType {
   isFetched: boolean;
   isLoading: boolean;
   setCurrentVisit: (visit?: Omit<Visit, "id"> & { id?: number }) => void;
-  updateCurrentVisit: (visit: Visit, userId?: number) => void;
+  updateCurrentVisit: (visit: Visit, currentUserId?: number) => void;
   visits?: Visit[];
 }
 
@@ -47,11 +47,17 @@ const VisitsProvider = ({ children }: PropsWithChildren) => {
   });
 
   /**
-   *
+   * Update or add the current visit to the local db
+   * @param visit {Visit} the current visit
+   * @param currentUserId {number} The id for the current user
    */
   const updateCurrentVisit = useCallback(
-    async (visit: Visit, userId?: number) => {
-      // First try to update the existing visit by ID
+    async (visit: Visit, currentUserId?: number) => {
+      if (!currentUserId) {
+        return;
+      }
+
+      // First, attempt to update an existing visit with the current visit's id
       const result = await localDb.runAsync(
         `
           UPDATE visits SET
@@ -70,18 +76,14 @@ const VisitsProvider = ({ children }: PropsWithChildren) => {
         ]
       );
 
-      // If UPDATE changed 0 rows, the visit doesn't exist yet → INSERT
+      // If the UPDATE changed 0 rows, add the current visit in a new row
       if (result.changes === 0) {
-        if (!userId) {
-          return;
-        }
-
         await localDb.runAsync(
           `
             INSERT INTO visits (user_id, title, checklist_values, user_rating, notes, created_at) VALUES (?, ?, ?, ?, ?, ?);
           `,
           [
-            userId,
+            currentUserId,
             visit.title || "",
             JSON.stringify(visit.checklist_values || []),
             visit.user_rating !== undefined ? visit.user_rating : 4,
@@ -97,7 +99,8 @@ const VisitsProvider = ({ children }: PropsWithChildren) => {
   );
 
   /**
-   *
+   * Delete an array of visits using ids
+   * @param ids {number[]} An array for visit ids
    */
   const deleteVisits = useCallback(
     async (ids: number[]) => {
@@ -154,7 +157,6 @@ const useVisits = () => {
  */
 const fetchVisits = async (): Promise<Visit[]> => {
   // If a db table for the user data doesn't exist, create it
-
   await localDb.execAsync(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS visits (
@@ -177,7 +179,7 @@ const fetchVisits = async (): Promise<Visit[]> => {
     END;
   `);
 
-  // Get the first row from the user db table
+  // Get the first row from the visits table
   const visits: DbVisit[] | null = await localDb.getAllAsync(
     "SELECT * FROM visits"
   );
@@ -200,9 +202,9 @@ const fetchVisits = async (): Promise<Visit[]> => {
 };
 
 /**
- *
- * @param checklistValues
- * @param user_rating
+ * Calculate the weighted visit score
+ * @param checklistValues {VisitChecklistValues} An object with boolean checklist values
+ * @param user_rating {number} The user rating
  * @returns
  */
 const calculateScore = (

@@ -40,9 +40,11 @@ export default function DevScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <Text color={theme.color.green[400]} fontSize={36} fontWeight="600">
-        Dev
-      </Text>
+      <View style={styles.titleWrapper}>
+        <Text color={theme.color.green[400]} fontSize={36} fontWeight="600">
+          Dev
+        </Text>
+      </View>
       <ScrollView>
         <View style={styles.buttonsWrapper}>
           <Button
@@ -91,6 +93,9 @@ const styles = createThemedStyleSheet((theme) => ({
     backgroundColor: theme.color.violet[950],
     gap: theme.spacing[1],
     flex: 1,
+    paddingHorizontal: theme.spacing[2],
+  },
+  titleWrapper: {
     paddingHorizontal: theme.spacing[2],
   },
   buttonsWrapper: {

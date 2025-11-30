@@ -1,6 +1,5 @@
-import Feather from "@expo/vector-icons/Feather";
 import { FC, useCallback, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 
 import { Filters as FiltersType } from "@/types/Provider";
 
@@ -15,21 +14,21 @@ import Text from "./ui/Text";
 
 const ProviderFilters: FC = () => {
   const theme = useTheme();
-  const { filters, applyFilters } = useProviders();
+  const { filters, applyFilters, totalFilters } = useProviders();
 
   const [pendingFilters, setPendingFilters] = useState<FiltersType>(filters);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   /**
-   * Update the pending filters
+   * Update the pending filters on checkbox change
    * @param key {keyof FiltersType} The key of the filter
-   * @param value {boolean} The value of the filter
+   * @param isChecked {boolean} Wether the checkbox is checked
    */
-  const updatePendingFilters = useCallback(
-    (key: keyof FiltersType, value: boolean) => {
+  const handleCheckboxChange = useCallback(
+    (key: keyof FiltersType, isChecked: boolean) => {
       setPendingFilters((providerFilters) => ({
         ...providerFilters,
-        [key]: value,
+        [key]: isChecked,
       }));
     },
     []
@@ -39,28 +38,6 @@ const ProviderFilters: FC = () => {
     <View style={styles.root}>
       {isOpen && (
         <View style={styles.checkboxesWrapper}>
-          <TouchableOpacity
-            onPress={() =>
-              updatePendingFilters(
-                "only_favorites",
-                !pendingFilters?.["only_favorites"]
-              )
-            }
-            style={styles.heartCheckbox}
-          >
-            {!!pendingFilters?.["only_favorites"] ? (
-              <Feather
-                color={theme.color.red[400]}
-                name="heart" // TODO: Need a filled version
-                size={24}
-              />
-            ) : (
-              <Feather color={theme.color.red[400]} name="heart" size={24} />
-            )}
-            <Text fontWeight={500} style={styles.heartCheckboxLabel}>
-              Only favorites?
-            </Text>
-          </TouchableOpacity>
           <View style={styles.checkboxWrapper}>
             <Text
               color={theme.color.violet[400]}
@@ -73,32 +50,32 @@ const ProviderFilters: FC = () => {
               direction="reverse"
               initialIsChecked={!!pendingFilters?.licensed_infant_capacity}
               label="Infant"
-              onChange={(value) =>
-                updatePendingFilters("licensed_infant_capacity", value)
+              onChange={(isChecked) =>
+                handleCheckboxChange("licensed_infant_capacity", isChecked)
               }
             />
             <Checkbox
               direction="reverse"
               initialIsChecked={!!pendingFilters?.licensed_toddler_capacity}
               label="Toddler"
-              onChange={(value) =>
-                updatePendingFilters("licensed_toddler_capacity", value)
+              onChange={(isChecked) =>
+                handleCheckboxChange("licensed_toddler_capacity", isChecked)
               }
             />
             <Checkbox
               direction="reverse"
               initialIsChecked={!!pendingFilters?.licensed_preschool_capacity}
               label="PreK"
-              onChange={(value) =>
-                updatePendingFilters("licensed_preschool_capacity", value)
+              onChange={(isChecked) =>
+                handleCheckboxChange("licensed_preschool_capacity", isChecked)
               }
             />
             <Checkbox
               direction="reverse"
               initialIsChecked={!!pendingFilters?.licensed_school_age_capacity}
               label="K-12"
-              onChange={(value) =>
-                updatePendingFilters("licensed_school_age_capacity", value)
+              onChange={(isChecked) =>
+                handleCheckboxChange("licensed_school_age_capacity", isChecked)
               }
             />
           </View>
@@ -116,10 +93,10 @@ const ProviderFilters: FC = () => {
               initialIsChecked={
                 !!pendingFilters?.["provider_service_type.Child Care Center"]
               }
-              onChange={(value) =>
-                updatePendingFilters(
+              onChange={(isChecked) =>
+                handleCheckboxChange(
                   "provider_service_type.Child Care Center",
-                  value
+                  isChecked
                 )
               }
             />
@@ -129,10 +106,10 @@ const ProviderFilters: FC = () => {
               initialIsChecked={
                 !!pendingFilters?.["provider_service_type.Preschool Program"]
               }
-              onChange={(value) =>
-                updatePendingFilters(
+              onChange={(isChecked) =>
+                handleCheckboxChange(
                   "provider_service_type.Preschool Program",
-                  value
+                  isChecked
                 )
               }
             />
@@ -144,10 +121,10 @@ const ProviderFilters: FC = () => {
                   "provider_service_type.School-Age Child Care Center"
                 ]
               }
-              onChange={(value) =>
-                updatePendingFilters(
+              onChange={(isChecked) =>
+                handleCheckboxChange(
                   "provider_service_type.School-Age Child Care Center",
-                  value
+                  isChecked
                 )
               }
             />
@@ -159,10 +136,10 @@ const ProviderFilters: FC = () => {
                   "provider_service_type.Large Family Child Care Home"
                 ]
               }
-              onChange={(value) =>
-                updatePendingFilters(
+              onChange={(isChecked) =>
+                handleCheckboxChange(
                   "provider_service_type.Large Family Child Care Home",
-                  value
+                  isChecked
                 )
               }
             />
@@ -174,15 +151,14 @@ const ProviderFilters: FC = () => {
                   "provider_service_type.Neighborhood Youth Organization"
                 ]
               }
-              onChange={(value) =>
-                updatePendingFilters(
+              onChange={(isChecked) =>
+                handleCheckboxChange(
                   "provider_service_type.Neighborhood Youth Organization",
-                  value
+                  isChecked
                 )
               }
             />
           </View>
-
           <View style={styles.checkboxWrapper}>
             <Text
               fontSize={18}
@@ -195,8 +171,8 @@ const ProviderFilters: FC = () => {
               label="CCCAP"
               direction="reverse"
               initialIsChecked={!!pendingFilters?.cccap_authorization_status}
-              onChange={(value) =>
-                updatePendingFilters("cccap_authorization_status", value)
+              onChange={(isChecked) =>
+                handleCheckboxChange("cccap_authorization_status", isChecked)
               }
             />
           </View>
@@ -217,7 +193,11 @@ const ProviderFilters: FC = () => {
         direction="reverse"
         iconName={isOpen ? "arrow-up" : "arrow-down"}
         onPress={() => setIsOpen((isOpen) => !isOpen)}
-        title={isOpen ? "Close filters" : "Open filters"}
+        title={
+          isOpen
+            ? `Close filters${totalFilters > 0 ? ` (${totalFilters})` : ""}`
+            : `Open filters${totalFilters > 0 ? ` (${totalFilters})` : ""}`
+        }
         variant="inverted"
       />
     </View>
@@ -229,7 +209,6 @@ const styles = createThemedStyleSheet((theme) => ({
     backgroundColor: theme.color.white,
     borderBottomLeftRadius: theme.spacing[11],
     borderBottomRightRadius: theme.spacing[11],
-    marginBottom: theme.spacing[1],
   },
   checkboxesWrapper: {
     gap: theme.spacing[4],

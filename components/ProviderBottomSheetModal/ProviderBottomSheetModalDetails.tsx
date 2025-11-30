@@ -7,12 +7,14 @@ import { useTheme } from "@/providers/ThemeProvider";
 
 import Text from "../ui/Text";
 
-interface ProviderDetailsProps {
+interface ProviderBottomSheetModalDetailsProps {
   listItems: Record<string, string>;
   title: string;
 }
 
-const ProviderDetails: FC<ProviderDetailsProps> = ({ listItems, title }) => {
+const ProviderBottomSheetModalDetails: FC<
+  ProviderBottomSheetModalDetailsProps
+> = ({ listItems, title }) => {
   const theme = useTheme();
 
   return (
@@ -51,4 +53,4 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
-export default ProviderDetails;
+export default ProviderBottomSheetModalDetails;

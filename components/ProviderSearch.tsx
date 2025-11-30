@@ -27,18 +27,12 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ isDisabled = false }) => {
    */
   const handleChangeText = useCallback(
     (value: string) => {
-      // Remove non-numeric characters
-      const numericValue = value.replace(/[^0-9]/g, "");
-
-      // Limit to 5 characters
-      const truncatedValue = numericValue.slice(0, 5);
-
       /**
        * Reset when value is empty and zip is not
        * Checking against `zip` will ensure we don't continuous check when empty
-       * Check against `numericValue` for this one
+       * Check against `value` for this one
        */
-      if (numericValue.length === 0 && zip.length !== 0) {
+      if (value.length === 0 && zip.length !== 0) {
         resetProviders();
       }
 
@@ -51,7 +45,7 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ isDisabled = false }) => {
       }
 
       // Set zip all the time, so the value still updates for the user
-      setZip(truncatedValue);
+      setZip(value);
     },
     [resetProviders, updateZip, zip.length]
   );
@@ -64,8 +58,9 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ isDisabled = false }) => {
       <View style={styles.form}>
         <View style={styles.textInputWrapper}>
           <TextInput
-            isDisabled={isDisabled}
             iconName="search"
+            isDisabled={isDisabled}
+            initialValue={zip}
             label="Zip code"
             onBlur={() => setIsFocused(false)}
             onChangeText={handleChangeText}
@@ -86,12 +81,19 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ isDisabled = false }) => {
               paddingTop: theme.spacing[5],
               paddingBottom: theme.spacing[5],
             }}
-            value={zip}
+            transformValue={(value) => {
+              // Remove non-numeric characters
+              const numericValue = value.replace(/[^0-9]/g, "");
+              // Limit to 5 characters
+              const truncatedValue = numericValue.slice(0, 5);
+              return truncatedValue;
+            }}
           />
         </View>
         <LocationButton
           isDisabled={isDisabled}
           onLocationPermissionGranted={(zip) => {
+            console.log(zip);
             if (!zip) {
               return;
             }

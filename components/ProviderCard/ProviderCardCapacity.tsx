@@ -7,12 +7,15 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import Text from "../ui/Text";
 
-interface ProviderCapacityProps {
+interface ProviderCardCapacityProps {
   count?: number;
   title: string;
 }
 
-const ProviderCapacity: FC<ProviderCapacityProps> = ({ count = 0, title }) => {
+const ProviderCardCapacity: FC<ProviderCardCapacityProps> = ({
+  count = 0,
+  title,
+}) => {
   return (
     <View style={[styles.root]}>
       <Text color={theme.color.white} fontSize={14}>
@@ -37,4 +40,4 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
-export default ProviderCapacity;
+export default ProviderCardCapacity;

@@ -16,8 +16,20 @@ const ProviderListHeader: FC = () => {
   const { totalProviders, isFetched } = useProviders();
 
   return (
-    <View style={styles.root}>
-      <View style={styles.wrapper}>
+    <View
+      style={[
+        styles.root,
+        {
+          paddingBottom:
+            totalProviders > 0
+              ? 0
+              : isFetched
+              ? theme.spacing[26]
+              : theme.spacing[17],
+        },
+      ]}
+    >
+      <View style={styles.providerSearchWrapper}>
         <ProviderSearch />
         <ProviderFilters />
       </View>
@@ -33,7 +45,7 @@ const styles = createThemedStyleSheet((theme) => ({
     gap: theme.spacing[4],
     paddingVertical: theme.spacing[1],
   },
-  wrapper: {
+  providerSearchWrapper: {
     backgroundColor: theme.color.white,
     borderTopLeftRadius: theme.spacing[12],
     borderTopRightRadius: theme.spacing[12],

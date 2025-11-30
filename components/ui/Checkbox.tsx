@@ -1,4 +1,4 @@
-import { useTheme } from "@/providers/ThemeProvider";
+import Feather from "@expo/vector-icons/Feather";
 import { FC, useState } from "react";
 import {
   ColorValue,
@@ -10,7 +10,8 @@ import {
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
-import Feather from "@expo/vector-icons/Feather";
+import { useTheme } from "@/providers/ThemeProvider";
+
 import Text from "./Text";
 
 type CheckboxProps = {

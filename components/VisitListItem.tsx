@@ -8,26 +8,26 @@ import { formatRelativeDate } from "@/utilities/date";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
-import { useVisits } from "@/providers/VisitsProvider";
 import Checkbox from "./ui/Checkbox";
 import Text from "./ui/Text";
 
 type VisitListItemProps = {
   initialCheckboxIsChecked?: boolean;
   onCheckboxChange: (isChecked: boolean) => void;
+  onPress: () => void;
   visit: Visit;
 };
 
 const VisitListItem: FC<VisitListItemProps> = ({
   initialCheckboxIsChecked = false,
   onCheckboxChange,
+  onPress,
   visit,
 }) => {
   const theme = useTheme();
-  const { setCurrentVisit } = useVisits();
 
   return (
-    <Pressable onPress={() => setCurrentVisit(visit)} style={styles.root}>
+    <Pressable onPress={onPress} style={styles.root}>
       <View style={styles.score}>
         <Text fontSize={32} fontWeight={600} color={theme.color.yellow[700]}>
           {visit.score || "—"}
@@ -69,8 +69,8 @@ const styles = createThemedStyleSheet((theme) => ({
     alignItems: "center",
     aspectRatio: "1 / 1",
     backgroundColor: theme.color.yellow[100],
-    borderWidth: 2,
-    borderColor: theme.color.yellow[400],
+    // borderWidth: 2,
+    // borderColor: theme.color.yellow[400],
     borderRadius: 24,
     justifyContent: "center",
     paddingTop: theme.spacing[1],

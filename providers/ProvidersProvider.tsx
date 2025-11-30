@@ -48,6 +48,7 @@ type ProvidersContextType = {
   providers: Provider[];
   resetProviders: () => void;
   setCurrentProvider: (provider: Provider | null) => void;
+  totalFilters: number;
   totalProviders: number;
   updateZip: (zip: string) => void;
   zip: string;
@@ -64,6 +65,7 @@ const ProvidersContext = createContext<ProvidersContextType>({
   providers: [],
   resetProviders: () => {},
   setCurrentProvider: () => {},
+  totalFilters: 0,
   totalProviders: 0,
   updateZip: () => {},
   zip: "",
@@ -74,12 +76,20 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [zip, setZip] = useState<string>("");
 
+  const isZipValid = useMemo(() => zip.length === 5, [zip]);
+
   const { data, error, isLoading, isFetching, isFetched } = useQuery({
     queryKey: ["fetchProviders", zip, filters],
     queryFn: () => fetchProviders(zip, filters),
-    enabled: () => zip.length === 5, // Only fire when the zip is valid
+    enabled: () => isZipValid, // Only fire when the zip is valid
   });
 
+  // Get the total number of TRUE filters
+  const totalFilters = useMemo(
+    () => Object.values(filters).filter(Boolean).length,
+    [filters]
+  );
+  // Get the total number of providers
   const totalProviders = useMemo(() => data?.length ?? 0, [data]);
 
   const updateZip = useCallback((zip: string) => {
@@ -107,6 +117,7 @@ const ProvidersProvider = ({ children }: PropsWithChildren) => {
         providers: data ?? [],
         resetProviders,
         setCurrentProvider,
+        totalFilters,
         totalProviders,
         updateZip,
         zip,
@@ -128,8 +139,12 @@ const useProviders = () => {
 };
 
 /**
- *
+ * Fetch the providers in two steps:
+ * 1. Fetch the providers from the CDEC dataset using the given zip and filters
+ * 2. Use CDEC ids to fetch the corresponding entries in the Firstore db
+ *  2a. If the provider doesn't have a locally stored static map image, fetch one from Google's API
  * @param zip {string} The zip code the search within
+ * @param filters {Filters} Filters used to construct the query clauses
  * @returns {Promise<Provider[]>} An array of providers
  */
 const fetchProviders = async (
@@ -179,12 +194,6 @@ const fetchProviders = async (
 
   if (!cdecProviders) {
     return [];
-  }
-
-  // Filter CDEC providers by favorites in the local DB
-  // TODO: Filter by favorites here
-  if (filters.only_favorites) {
-    // cdecProviders.map();
   }
 
   const ids: string[] = cdecProviders.map((provider) => provider.provider_id);

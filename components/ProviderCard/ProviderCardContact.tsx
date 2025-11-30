@@ -7,20 +7,21 @@ import { useTheme } from "@/providers/ThemeProvider";
 
 import Button from "../ui/Button";
 
-type ProviderContactProps = {
+type ProviderCardContactProps = {
   address: string;
   orientation?: "horizontal" | "vertical";
   phoneNumber?: string;
   website?: string;
 };
 
-const ProviderContact: FC<ProviderContactProps> = ({
+const ProviderCardContact: FC<ProviderCardContactProps> = ({
   address,
   orientation = "horizontal",
   phoneNumber,
   website,
 }) => {
   const theme = useTheme();
+
   const formattedAddress = useMemo(() => {
     if (!address) {
       return "";
@@ -87,4 +88,4 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
-export default ProviderContact;
+export default ProviderCardContact;

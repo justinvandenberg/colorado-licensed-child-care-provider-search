@@ -8,11 +8,13 @@ import { useTheme } from "@/providers/ThemeProvider";
 
 import TextIcon, { IconName } from "../ui/TextIcon";
 
-type ProviderStandingProps = {
+type ProviderCardQualityRatingProps = {
   qualityRating: Provider["quality_rating"];
 };
 
-const ProviderStanding: FC<ProviderStandingProps> = ({ qualityRating }) => {
+const ProviderCardQualityRating: FC<ProviderCardQualityRatingProps> = ({
+  qualityRating,
+}) => {
   const theme = useTheme();
   const props = useMemo(() => {
     let iconName: IconName = "slash";
@@ -74,4 +76,4 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
-export default ProviderStanding;
+export default ProviderCardQualityRating;
