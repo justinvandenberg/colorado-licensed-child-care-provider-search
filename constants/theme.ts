@@ -28,6 +28,11 @@ const spacing = {
   23: 92,
   24: 96,
   25: 100,
+  26: 104,
+  27: 108,
+  28: 112,
+  29: 116,
+  30: 120,
 };
 
 const theme = {
@@ -62,8 +67,8 @@ const theme = {
   fontFamily: {
     sans: {
       normal: "DMSans_400Regular",
-      contrast: "DMSans_500Medium",
-      bold: "DMSans_600SemiBold",
+      medium: "DMSans_500Medium",
+      semiBold: "DMSans_600SemiBold",
     },
   },
 };

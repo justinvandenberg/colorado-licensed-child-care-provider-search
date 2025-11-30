@@ -10,18 +10,20 @@ import { useTheme } from "@/providers/ThemeProvider";
 import Checkbox from "../ui/Checkbox";
 import Text from "../ui/Text";
 
-interface VisitChecklistProps {
-  items: VisitChecklistItems;
-  onChange: (id: number, value: boolean) => void;
+interface VisitBottomSheetModalChecklistProps {
+  checklistItems: VisitChecklistItems;
+  checklistValues?: VisitChecklistValues;
+  onChecklistItemChange: (id: number, value: boolean) => void;
   title: string;
-  values?: VisitChecklistValues;
 }
 
-const VisitChecklist: FC<VisitChecklistProps> = ({
-  items,
-  onChange,
+const VisitBottomSheetModalChecklist: FC<
+  VisitBottomSheetModalChecklistProps
+> = ({
+  checklistItems,
+  checklistValues = [],
+  onChecklistItemChange,
   title,
-  values = [],
 }) => {
   const theme = useTheme();
 
@@ -30,17 +32,20 @@ const VisitChecklist: FC<VisitChecklistProps> = ({
       <Text color={theme.color.violet[400]} fontSize={20} fontWeight={600}>
         {title}
       </Text>
-      <View style={styles.questions}>
-        {Object.entries(items).map(([id, label]) => {
+      <View style={styles.checklistItems}>
+        {Object.entries(checklistItems).map(([id, label]) => {
+          // Convert to a number
           const numericId = Number(id);
 
           return (
             <Checkbox
               direction="reverse"
-              initialIsChecked={values[numericId]}
+              initialIsChecked={checklistValues[numericId]}
               key={id}
               label={label}
-              onChange={() => onChange?.(numericId, !values[numericId])}
+              onChange={() =>
+                onChecklistItemChange(numericId, !checklistValues[numericId])
+              }
             />
           );
         })}
@@ -50,10 +55,10 @@ const VisitChecklist: FC<VisitChecklistProps> = ({
 };
 
 const styles = createThemedStyleSheet((theme) => ({
-  questions: {
+  checklistItems: {
     gap: theme.spacing[2],
-    marginTop: theme.spacing[2],
+    marginTop: theme.spacing[1],
   },
 }));
 
-export default VisitChecklist;
+export default VisitBottomSheetModalChecklist;

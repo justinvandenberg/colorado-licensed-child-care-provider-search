@@ -1,5 +1,4 @@
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
-import Feather from "@expo/vector-icons/Feather";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { forwardRef, useEffect, useMemo, useState } from "react";
 import {
@@ -11,12 +10,10 @@ import {
   ViewStyle,
 } from "react-native";
 
-import { useTheme } from "@/providers/ThemeProvider";
-
 import Text from "./Text";
 import { IconName } from "./TextIcon";
 
-type TextInputBaseProps = RnTextInputProps & {
+type TextAreaBaseProps = RnTextInputProps & {
   iconColor?: ColorValue;
   iconName?: IconName;
   initialValue?: string;
@@ -31,22 +28,22 @@ type TextInputBaseProps = RnTextInputProps & {
 };
 
 // When in a BottomSheet
-type BottomSheetTextInputProps = TextInputBaseProps & {
+type BottomSheetTextAreaProps = TextAreaBaseProps & {
   isInBottomSheet: true;
   ref?: React.Ref<typeof BottomSheetTextInput>;
 };
 
 // When NOT in a BottomSheet
-type RnTextInputPropsType = TextInputBaseProps & {
+type RnTextAreaPropsType = TextAreaBaseProps & {
   isInBottomSheet?: false;
   ref?: React.Ref<RnTextInput>;
 };
 
-export type TextInputProps = BottomSheetTextInputProps | RnTextInputPropsType;
+export type TextAreaProps = BottomSheetTextAreaProps | RnTextAreaPropsType;
 
-const TextInput = forwardRef<
+const TextArea = forwardRef<
   RnTextInput | typeof BottomSheetTextInput,
-  TextInputProps
+  TextAreaProps
 >(
   (
     {
@@ -66,8 +63,6 @@ const TextInput = forwardRef<
     },
     ref
   ) => {
-    const theme = useTheme();
-
     const [value, setValue] = useState<string>(initialValue);
 
     const TextInputComponent = useMemo(
@@ -86,56 +81,45 @@ const TextInput = forwardRef<
             {label}
           </Text>
         )}
-        <View style={[styles.textInputWrapper, style]}>
-          {iconName && (
-            <Feather
-              color={iconColor ? iconColor : theme.color.violet[400]}
-              name={iconName}
-              size={24}
-            />
-          )}
-          <TextInputComponent
-            {...props}
-            aria-label={!showLabel ? label : undefined}
-            editable={!isDisabled}
-            onChangeText={(value) => {
-              const transformedValue = transformValue(value);
-              setValue(transformedValue);
-              onChangeText?.(transformedValue);
-            }}
-            ref={ref as any}
-            style={[styles.textInput, textInputStyle]}
-            value={value}
-          />
-        </View>
+        <TextInputComponent
+          {...props}
+          aria-label={!showLabel ? label : undefined}
+          editable={!isDisabled}
+          multiline={true}
+          onChangeText={(value) => {
+            const transformedValue = transformValue(value);
+            setValue(transformedValue);
+            onChangeText?.(transformedValue);
+          }}
+          ref={ref as any}
+          style={[styles.textInput, textInputStyle]}
+          value={value}
+        />
       </View>
     );
   }
 );
 
 // This is important for devtools
-TextInput.displayName = "TextInput";
+TextArea.displayName = "TextArea";
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
     gap: theme.spacing[1],
-  },
-  textInputWrapper: {
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: theme.color.white,
-    backgroundColor: theme.color.white,
-    borderRadius: theme.spacing[6],
-    flexDirection: "row",
-    paddingHorizontal: theme.spacing[4],
+    flex: 1,
   },
   textInput: {
+    backgroundColor: theme.color.white,
+    borderColor: theme.color.violet[400],
+    borderRadius: theme.spacing[6],
+    borderWidth: 2,
     color: theme.color.violet[950],
-    flexGrow: 1,
-    fontSize: 16,
     paddingHorizontal: theme.spacing[4],
-    paddingVertical: 22,
+    paddingVertical: theme.spacing[3],
+    fontSize: 16,
+    minHeight: 200,
+    flex: 1,
   },
 }));
 
-export default TextInput;
+export default TextArea;

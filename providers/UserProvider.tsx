@@ -45,7 +45,8 @@ const UserProvider = ({ children }: PropsWithChildren) => {
   });
 
   /**
-   *
+   * Update the current user's favorites in the local db
+   * @param providerId {string} The id of the provider to be designated a favorite
    */
   const updateCurrentUserFavorites = useCallback(
     async (providerId: string) => {
@@ -57,10 +58,10 @@ const UserProvider = ({ children }: PropsWithChildren) => {
       let updatedFavorites = currentUserFavorites;
 
       // Check if the provider passed in exists in the current list of favorites
-      if (currentUserFavorites.includes(providerId)) {
-        updatedFavorites = currentUserFavorites.filter((f) => f !== providerId); // Remove
+      if (updatedFavorites.includes(providerId)) {
+        updatedFavorites = updatedFavorites.filter((f) => f !== providerId); // Remove
       } else {
-        updatedFavorites = [...currentUserFavorites, providerId]; // Add
+        updatedFavorites = [...updatedFavorites, providerId]; // Add
       }
 
       // Update the row with the new list of favorites
@@ -76,6 +77,7 @@ const UserProvider = ({ children }: PropsWithChildren) => {
 
       // Set the current user with the updated favorites
       setCurrentUser({ ...currentUser, favorites: updatedFavorites });
+      setCurrentUserFavorites(updatedFavorites);
     },
     [currentUser, currentUserFavorites]
   );
@@ -122,7 +124,6 @@ const useUser = () => {
  */
 const fetchUser = async (): Promise<User | undefined> => {
   // If a db table for the user data doesn't exist, create it
-
   await localDb.execAsync(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS users (
@@ -142,7 +143,7 @@ const fetchUser = async (): Promise<User | undefined> => {
     END;
   `);
 
-  // Get the first row from the user db table
+  // Get the first row from the user table
   const user: DbUser | null = await localDb.getFirstAsync(
     "SELECT * FROM users"
   );

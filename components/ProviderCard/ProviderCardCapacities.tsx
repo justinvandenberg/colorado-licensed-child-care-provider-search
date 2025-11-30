@@ -5,16 +5,16 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { Provider } from "@/types/Provider";
 
-import ProviderCapacity from "./ProviderCapacity";
+import ProviderCapacity from "./ProviderCardCapacity";
 
-type ProviderCapacitiesProps = {
+type ProviderCardCapacitiesProps = {
   infantCapacity: Provider["licensed_infant_capacity"];
   preschoolCapacity: Provider["licensed_school_age_capacity"];
   schoolAgeCapacity: Provider["licensed_preschool_and_school_age_capacity"];
   toddlerCapacity: Provider["licensed_toddler_capacity"];
 };
 
-const ProviderCapacities: FC<ProviderCapacitiesProps> = ({
+const ProviderCardCapacities: FC<ProviderCardCapacitiesProps> = ({
   infantCapacity = 0,
   preschoolCapacity = 0,
   schoolAgeCapacity = 0,
@@ -40,4 +40,4 @@ const styles = createThemedStyleSheet((theme) => ({
   },
 }));
 
-export default ProviderCapacities;
+export default ProviderCardCapacities;

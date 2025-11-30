@@ -1,5 +1,5 @@
 import Feather from "@expo/vector-icons/Feather";
-import { useMemo } from "react";
+import { ComponentType, useMemo } from "react";
 import {
   GestureResponderEvent,
   Pressable,
@@ -7,6 +7,7 @@ import {
   StyleProp,
   ViewStyle,
 } from "react-native";
+import type { SvgProps } from "react-native-svg";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
@@ -16,7 +17,7 @@ import Inline from "./Inline";
 import Text, { TextProps } from "./Text";
 import { IconName } from "./TextIcon";
 
-export type ButtonProps = {
+export type ButtonProps = PressableProps & {
   direction?: "forward" | "reverse";
   iconColor?: string;
   iconName?: IconName;
@@ -26,12 +27,13 @@ export type ButtonProps = {
   onPress: (event: GestureResponderEvent) => void;
   size?: "compact";
   style?: StyleProp<ViewStyle>;
+  SvgIcon?: ComponentType<SvgProps>;
   title: string;
   titleColor?: TextProps["color"];
   titleSize?: TextProps["fontSize"];
   titleWeight?: TextProps["fontWeight"];
   variant?: "inverted";
-} & PressableProps;
+};
 
 const Button = ({
   direction = "forward",
@@ -43,6 +45,7 @@ const Button = ({
   onPress,
   size,
   style,
+  SvgIcon,
   title,
   titleColor,
   titleSize = 16,
@@ -52,6 +55,12 @@ const Button = ({
   const theme = useTheme();
 
   const Button = useMemo(() => {
+    if (iconName && SvgIcon) {
+      throw new Error(
+        "Please provide either an iconName or a SvgIcon, not both"
+      );
+    }
+
     return (
       <Pressable
         aria-label={iconOnly ? title : undefined}
@@ -61,6 +70,7 @@ const Button = ({
           styles.root,
           size === "compact" && styles.sizeCompact,
           variant === "inverted" && styles.variantInverted,
+          isDisabled && styles.isDisabled,
           {
             flexDirection: direction === "reverse" ? "row-reverse" : "row",
           },
@@ -82,6 +92,7 @@ const Button = ({
             size={iconSize}
           />
         )}
+        {SvgIcon && <SvgIcon />}
         {!iconOnly && (
           <Text
             color={
@@ -112,6 +123,7 @@ const Button = ({
     onPress,
     size,
     style,
+    SvgIcon,
     theme.color.violet,
     theme.color.white,
     title,
@@ -145,6 +157,10 @@ const styles = createThemedStyleSheet((theme) => ({
   },
   variantInverted: {
     backgroundColor: theme.color.transparent,
+  },
+  isDisabled: {
+    opacity: 0.4,
+    pointerEvents: "none",
   },
   title: {
     marginTop: 3,

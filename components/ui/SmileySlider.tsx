@@ -2,11 +2,7 @@ import { useAssets } from "expo-asset";
 import { Image } from "expo-image";
 import React, { FC } from "react";
 import { ColorValue, StyleProp, View, ViewStyle } from "react-native";
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -19,7 +15,7 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 import Text from "./Text";
 
 const SLIDER_THUMB_SIZE = 40;
-const SLIDER_WIDTH = 320;
+const SLIDER_WIDTH = 360;
 const SMILEY_SIZE = 40;
 const TOTAL_STEPS = 8;
 const MAX_VALUE = SLIDER_WIDTH - SLIDER_THUMB_SIZE;
@@ -110,7 +106,7 @@ const SmileySlider: FC<SmileySliderProps> = ({
           {label}
         </Text>
       )}
-      <GestureHandlerRootView
+      <View
         aria-label={!showLabel ? label : undefined}
         style={styles.smileyWrapper}
       >
@@ -133,7 +129,7 @@ const SmileySlider: FC<SmileySliderProps> = ({
           </GestureDetector>
           <View style={styles.sliderTrack} />
         </View>
-      </GestureHandlerRootView>
+      </View>
     </View>
   );
 };

@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useRef, useState } from "react";
 import { FlatList, View } from "react-native";
 
 import { Visit } from "@/types/Visit";
@@ -7,18 +7,21 @@ import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { useVisits } from "@/providers/VisitsProvider";
 
+import BottomSheetModal, { BottomSheetModalType } from "./ui/BottomSheetModal";
 import Button from "./ui/Button";
 
+import VisitBottomSheetModal from "./VisitBottomSheetModal";
 import VisitListItem from "./VisitListItem";
-import VisitModal from "./VisitModal";
 
 const VisitList: FC = () => {
-  const { visits, setCurrentVisit, currentVisit } = useVisits();
+  const { visits, setCurrentVisit, currentVisit, deleteVisits } = useVisits();
+
+  const visitBottomSheetModalRef = useRef<BottomSheetModalType>(null);
 
   const [selectedVisitIds, setSelectedVisitIds] = useState<Visit["id"][]>([]);
 
   /**
-   * Add or remove visit id from the array of selected visit ids
+   * Add or remove visit id from the array of selected visit ids in local state
    * @param id {number} The id of the checkbox
    * @param isChecked {boolean} Wether the checkbox is checked
    */
@@ -28,6 +31,16 @@ const VisitList: FC = () => {
         ? [...selectedVisitIds, id]
         : selectedVisitIds.filter((i) => i !== id)
     );
+  }, []);
+
+  // Open the visit bottom sheet modal
+  const openVisitBottomSheetModal = useCallback(() => {
+    visitBottomSheetModalRef.current?.present();
+  }, []);
+
+  // Close the visit bottom sheet modal
+  const closeVisitBottomSheetModal = useCallback(() => {
+    visitBottomSheetModalRef.current?.dismiss();
   }, []);
 
   return (
@@ -42,6 +55,10 @@ const VisitList: FC = () => {
             onCheckboxChange={(isChecked: boolean) =>
               handleCheckboxChange(item.id, isChecked)
             }
+            onPress={() => {
+              setCurrentVisit(item);
+              openVisitBottomSheetModal();
+            }}
             visit={item}
           />
         )}
@@ -51,7 +68,8 @@ const VisitList: FC = () => {
           <Button
             iconName="trash-2"
             onPress={() => {
-              console.log("del");
+              deleteVisits(selectedVisitIds);
+              setSelectedVisitIds([]);
             }}
             style={styles.deleteButton}
             title={`Delete ${selectedVisitIds.length} visit${
@@ -64,23 +82,25 @@ const VisitList: FC = () => {
           iconName="plus"
           onPress={() => {
             setCurrentVisit({ title: "" });
+            openVisitBottomSheetModal();
           }}
           title="Add a visit"
         />
       </View>
-      {currentVisit !== undefined && (
-        <VisitModal
-          key={currentVisit.id ?? "new"}
-          onClose={() => setCurrentVisit(undefined)}
-          visit={currentVisit}
-          visible={!!currentVisit}
-        />
-      )}
+      <BottomSheetModal ref={visitBottomSheetModalRef}>
+        {currentVisit && (
+          <VisitBottomSheetModal
+            onClose={() => {
+              setCurrentVisit(undefined);
+              closeVisitBottomSheetModal();
+            }}
+            visit={currentVisit}
+          />
+        )}
+      </BottomSheetModal>
     </View>
   );
 };
-
-export default VisitList;
 
 const styles = createThemedStyleSheet((theme) => ({
   root: {
@@ -101,3 +121,5 @@ const styles = createThemedStyleSheet((theme) => ({
     flexGrow: 1,
   },
 }));
+
+export default VisitList;
