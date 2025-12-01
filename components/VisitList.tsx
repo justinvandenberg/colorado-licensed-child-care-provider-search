@@ -11,6 +11,7 @@ import BottomSheetModal, { BottomSheetModalType } from "./ui/BottomSheetModal";
 import Button from "./ui/Button";
 
 import VisitBottomSheetModal from "./VisitBottomSheetModal";
+import VisitDeleteConfirmationModal from "./VisitDeleteConfirmationModal";
 import VisitListItem from "./VisitListItem";
 
 const VisitList: FC = () => {
@@ -19,6 +20,10 @@ const VisitList: FC = () => {
   const visitBottomSheetModalRef = useRef<BottomSheetModalType>(null);
 
   const [selectedVisitIds, setSelectedVisitIds] = useState<Visit["id"][]>([]);
+  const [
+    showVisitDeleteConfirmationModal,
+    setShowVisitDeleteConfirmationModal,
+  ] = useState<boolean>(false);
 
   /**
    * Add or remove visit id from the array of selected visit ids in local state
@@ -44,49 +49,59 @@ const VisitList: FC = () => {
   }, []);
 
   return (
-    <View style={styles.root}>
-      <FlatList
-        contentContainerStyle={styles.contentContainer}
-        data={visits}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <VisitListItem
-            initialCheckboxIsChecked={selectedVisitIds.includes(item.id)}
-            onCheckboxChange={(isChecked: boolean) =>
-              handleCheckboxChange(item.id, isChecked)
-            }
+    <>
+      <View style={styles.root}>
+        <FlatList
+          contentContainerStyle={styles.contentContainer}
+          data={visits}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <VisitListItem
+              initialCheckboxIsChecked={selectedVisitIds.includes(item.id)}
+              onCheckboxChange={(isChecked: boolean) =>
+                handleCheckboxChange(item.id, isChecked)
+              }
+              onPress={() => {
+                setCurrentVisit(item);
+                openVisitBottomSheetModal();
+              }}
+              visit={item}
+            />
+          )}
+        />
+        <View style={styles.buttonsWrapper}>
+          {selectedVisitIds.length > 0 && (
+            <Button
+              iconName="trash-2"
+              onPress={() => setShowVisitDeleteConfirmationModal(true)}
+              style={styles.deleteButton}
+              title={`Delete ${selectedVisitIds.length} visit${
+                selectedVisitIds.length > 1 ? "s" : ""
+              }`}
+            />
+          )}
+          <Button
+            iconOnly={true}
+            iconName="plus"
             onPress={() => {
-              setCurrentVisit(item);
+              setCurrentVisit({ title: "" });
               openVisitBottomSheetModal();
             }}
-            visit={item}
+            title="Add a visit"
           />
-        )}
-      />
-      <View style={styles.buttonsWrapper}>
-        {selectedVisitIds.length > 0 && (
-          <Button
-            iconName="trash-2"
-            onPress={() => {
-              deleteVisits(selectedVisitIds);
-              setSelectedVisitIds([]);
-            }}
-            style={styles.deleteButton}
-            title={`Delete ${selectedVisitIds.length} visit${
-              selectedVisitIds.length > 1 ? "s" : ""
-            }`}
-          />
-        )}
-        <Button
-          iconOnly={true}
-          iconName="plus"
-          onPress={() => {
-            setCurrentVisit({ title: "" });
-            openVisitBottomSheetModal();
-          }}
-          title="Add a visit"
-        />
+        </View>
       </View>
+      <VisitDeleteConfirmationModal
+        visible={showVisitDeleteConfirmationModal}
+        onClose={() => {
+          setShowVisitDeleteConfirmationModal(false);
+        }}
+        onDelete={() => {
+          deleteVisits(selectedVisitIds);
+          setSelectedVisitIds([]);
+          setShowVisitDeleteConfirmationModal(false);
+        }}
+      />
       <BottomSheetModal ref={visitBottomSheetModalRef}>
         {currentVisit && (
           <VisitBottomSheetModal
@@ -98,7 +113,7 @@ const VisitList: FC = () => {
           />
         )}
       </BottomSheetModal>
-    </View>
+    </>
   );
 };
 

@@ -21,6 +21,7 @@ import { useVisits } from "@/providers/VisitsProvider";
 
 import { BottomSheetModalProps } from "../ui/BottomSheetModal";
 
+import VisitDeleteConfirmationModal from "../VisitDeleteConfirmationModal";
 import VisitBottomSheetModalChecklist from "./VisitBottomSheetModalChecklist";
 import VisitBottomSheetModalTitle from "./VisitBottomSheetModalTitle";
 
@@ -41,6 +42,10 @@ const VisitBottomSheetModal: FC<VisitBottomSheetModalProps> = ({
   const [pendingChecklistValues, setPendingChecklistValues] =
     useState<VisitChecklistValues>();
   const [pendingUserRating, setPendingUserRating] = useState<number>();
+  const [
+    showVisitDeleteConfirmationModal,
+    setShowVisitDeleteConfirmationModal,
+  ] = useState<boolean>(false);
 
   /**
    * Update the pending checklist values
@@ -61,100 +66,114 @@ const VisitBottomSheetModal: FC<VisitBottomSheetModalProps> = ({
   }, [visit.title, visit.checklist_values, visit.user_rating]);
 
   return (
-    <View style={styles.root}>
-      <TextIcon
-        iconColor={theme.color.yellow[400]}
-        iconName="star"
-        iconSize={24}
-        style={styles.score}
-        title={`${visit.score || "—"}`}
-        titleColor={theme.color.yellow[700]}
-        titleSize={20}
-        titleWeight={600}
-      />
-      <VisitBottomSheetModalTitle
-        initialValue={visit.title}
-        label="Visit title"
-        onSubmit={setPendingTitle}
-      />
-      <View style={styles.buttonsWrapper}>
-        {visit.id !== undefined && (
+    <>
+      <View
+        style={[
+          styles.root,
+          { opacity: showVisitDeleteConfirmationModal ? 0.5 : 1 },
+        ]}
+      >
+        <TextIcon
+          iconColor={theme.color.yellow[400]}
+          iconName="star"
+          iconSize={24}
+          style={styles.score}
+          title={`${visit.score || "—"}`}
+          titleColor={theme.color.yellow[700]}
+          titleSize={20}
+          titleWeight={600}
+        />
+        <VisitBottomSheetModalTitle
+          initialValue={visit.title}
+          label="Visit title"
+          onSubmit={setPendingTitle}
+        />
+        <View style={styles.buttonsWrapper}>
+          {visit.id !== undefined && (
+            <Button
+              iconName="trash-2"
+              onPress={() => {
+                setShowVisitDeleteConfirmationModal(true);
+              }}
+              style={styles.deleteButton}
+              title="Delete"
+            />
+          )}
           <Button
-            iconName="trash-2"
+            iconName="save"
+            isDisabled={!pendingTitle}
             onPress={() => {
-              deleteVisits([visit.id]);
-              setCurrentVisit(undefined);
+              updateCurrentVisit(
+                {
+                  ...currentVisit,
+                  id: visit.id,
+                  checklist_values:
+                    pendingChecklistValues ?? visit.checklist_values,
+                  title: pendingTitle ?? visit.title,
+                  user_rating: pendingUserRating ?? visit.user_rating,
+                },
+                currentUser?.id
+              );
               onClose();
             }}
-            style={styles.deleteButton}
-            title="Delete"
+            style={styles.saveButton}
+            title="Save"
           />
-        )}
-        <Button
-          iconName="save"
-          isDisabled={!pendingTitle}
-          onPress={() => {
-            updateCurrentVisit(
-              {
-                ...currentVisit,
-                id: visit.id,
-                checklist_values:
-                  pendingChecklistValues ?? visit.checklist_values,
-                title: pendingTitle ?? visit.title,
-                user_rating: pendingUserRating ?? visit.user_rating,
-              },
-              currentUser?.id
-            );
-            onClose();
-          }}
-          style={styles.saveButton}
-          title="Save"
-        />
+        </View>
+        <View style={styles.checkboxesWrapper}>
+          <VisitBottomSheetModalChecklist
+            checklistItems={HEALTH_AND_SAFETY_ITEMS}
+            checklistValues={pendingChecklistValues || visit.checklist_values}
+            onChecklistItemChange={handleChecklistChange}
+            title="Health and safety"
+          />
+          <VisitBottomSheetModalChecklist
+            checklistItems={DAILY_ACTIVITIES_ITEMS}
+            checklistValues={pendingChecklistValues || visit.checklist_values}
+            onChecklistItemChange={handleChecklistChange}
+            title="Daily activities"
+          />
+          <VisitBottomSheetModalChecklist
+            checklistItems={PROVIDER_INTERACTIONS_ITEMS}
+            checklistValues={pendingChecklistValues || visit.checklist_values}
+            onChecklistItemChange={handleChecklistChange}
+            title="Provider interactions"
+          />
+          <VisitBottomSheetModalChecklist
+            checklistItems={LEARNING_ENVIRONMENT_ITEMS}
+            checklistValues={pendingChecklistValues || visit.checklist_values}
+            onChecklistItemChange={handleChecklistChange}
+            title="Learning environment"
+          />
+        </View>
+        <View style={styles.smileySliderWrapper}>
+          <Text fontSize={20} fontWeight={600} color={theme.color.violet[400]}>
+            How much do you like this place?
+          </Text>
+          <SmileySlider
+            label="How much do you like this place?"
+            onPanEnd={setPendingUserRating}
+            showLabel={false}
+            initialValue={visit.user_rating}
+          />
+        </View>
+        <View style={styles.textAreaWrapper}>
+          <Text fontSize={20} fontWeight={600} color={theme.color.violet[400]}>
+            Additional notes
+          </Text>
+          <TextArea isInBottomSheet={true} label="Notes" showLabel={false} />
+        </View>
       </View>
-      <View style={styles.checkboxesWrapper}>
-        <VisitBottomSheetModalChecklist
-          checklistItems={HEALTH_AND_SAFETY_ITEMS}
-          checklistValues={pendingChecklistValues || visit.checklist_values}
-          onChecklistItemChange={handleChecklistChange}
-          title="Health and safety"
-        />
-        <VisitBottomSheetModalChecklist
-          checklistItems={DAILY_ACTIVITIES_ITEMS}
-          checklistValues={pendingChecklistValues || visit.checklist_values}
-          onChecklistItemChange={handleChecklistChange}
-          title="Daily activities"
-        />
-        <VisitBottomSheetModalChecklist
-          checklistItems={PROVIDER_INTERACTIONS_ITEMS}
-          checklistValues={pendingChecklistValues || visit.checklist_values}
-          onChecklistItemChange={handleChecklistChange}
-          title="Provider interactions"
-        />
-        <VisitBottomSheetModalChecklist
-          checklistItems={LEARNING_ENVIRONMENT_ITEMS}
-          checklistValues={pendingChecklistValues || visit.checklist_values}
-          onChecklistItemChange={handleChecklistChange}
-          title="Learning environment"
-        />
-      </View>
-      <View style={styles.smileySliderWrapper}>
-        <Text fontSize={20} fontWeight={600} color={theme.color.violet[400]}>
-          How much do you like this place?
-        </Text>
-        <SmileySlider
-          label="How much do you like this place?"
-          onPanEnd={setPendingUserRating}
-          showLabel={false}
-          initialValue={visit.user_rating}
-        />
-      </View>
-      <View style={styles.textAreaWrapper}>
-        <Text fontSize={20} fontWeight={600} color={theme.color.violet[400]}>
-          Additional notes
-        </Text>
-        <TextArea isInBottomSheet={true} label="Notes" showLabel={false} />
-      </View>
-    </View>
+      <VisitDeleteConfirmationModal
+        onClose={() => setShowVisitDeleteConfirmationModal(false)}
+        onDelete={() => {
+          deleteVisits([visit.id]);
+          setCurrentVisit(undefined);
+          onClose();
+        }}
+        visible={showVisitDeleteConfirmationModal}
+      />
+    </>
   );
 };
 
