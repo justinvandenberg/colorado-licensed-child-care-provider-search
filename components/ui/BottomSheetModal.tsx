@@ -72,7 +72,7 @@ const BottomSheetModal = forwardRef<
         colors={["rgba(255, 255, 255, 1)", "rgba(255, 255, 255, 0)"]}
         style={styles.topGradient}
       />
-      <BottomSheetScrollView style={styles.scrollWrapper} ref={scrollRef}>
+      <BottomSheetScrollView style={styles.contentWrapper} ref={scrollRef}>
         {children}
         <BackToTopButton scrollRef={scrollRef} />
       </BottomSheetScrollView>
@@ -100,7 +100,7 @@ const styles = createThemedStyleSheet((theme) => ({
     backgroundColor: theme.color.white,
     borderTopLeftRadius: theme.spacing[11],
     borderTopRightRadius: theme.spacing[11],
-    borderColor: theme.color.violet[200],
+    borderColor: theme.color.violet[100],
     borderWidth: 1,
   },
   bottomSheetModalHandleIndicator: {
@@ -109,7 +109,7 @@ const styles = createThemedStyleSheet((theme) => ({
   backdrop: {
     backgroundColor: theme.color.violet[950],
   },
-  scrollWrapper: {
+  contentWrapper: {
     flex: 1,
     paddingTop: theme.spacing[2],
   },

@@ -60,7 +60,7 @@ const VisitListItem: FC<VisitListItemProps> = ({
 const styles = createThemedStyleSheet((theme) => ({
   root: {
     backgroundColor: theme.color.white,
-    borderRadius: 32,
+    borderRadius: theme.spacing[8],
     flexDirection: "row",
     gap: theme.spacing[2],
     padding: theme.spacing[2],

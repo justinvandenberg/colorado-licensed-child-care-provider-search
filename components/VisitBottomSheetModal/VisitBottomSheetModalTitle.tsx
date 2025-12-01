@@ -1,27 +1,21 @@
 import Feather from "@expo/vector-icons/Feather";
 import { FC, useRef, useState } from "react";
-import {
-  TextInputProps as RnTextInputProps,
-  StyleProp,
-  View,
-  ViewStyle,
-} from "react-native";
+import { StyleProp, View, ViewStyle } from "react-native";
 
 import { createThemedStyleSheet } from "@/utilities/createThemedStyleSheet";
 
 import { useTheme } from "@/providers/ThemeProvider";
 
-import TextInput from "../ui/TextInput";
+import TextInput, { TextInputProps } from "../ui/TextInput";
 
-type VisitBottomSheetModalTitleProps = Omit<RnTextInputProps, "onBlur"> & {
-  initialValue?: string;
-  label: string;
+type VisitBottomSheetModalTitleProps = Omit<TextInputProps, "onBlur"> & {
   onSubmit?: (value: string) => void;
   style?: StyleProp<ViewStyle>;
 };
 
 const VisitBottomSheetModalTitle: FC<VisitBottomSheetModalTitleProps> = ({
   initialValue = "",
+  isDisabled = false,
   label,
   onSubmit,
   style,
@@ -49,6 +43,7 @@ const VisitBottomSheetModalTitle: FC<VisitBottomSheetModalTitleProps> = ({
       <TextInput
         {...props}
         initialValue={value}
+        isDisabled={isDisabled}
         isInBottomSheet={true}
         label={label}
         multiline={true}

@@ -93,7 +93,6 @@ const ProviderSearch: FC<ProviderSearchProps> = ({ isDisabled = false }) => {
         <LocationButton
           isDisabled={isDisabled}
           onLocationPermissionGranted={(zip) => {
-            console.log(zip);
             if (!zip) {
               return;
             }

@@ -2,7 +2,6 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 
@@ -22,9 +21,6 @@ const queryClient = new QueryClient();
 const RootLayout = () => {
   const currentPathname = usePathname();
 
-  useEffect(() => {
-    console.log(currentPathname);
-  }, [currentPathname]);
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
